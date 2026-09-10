@@ -1,0 +1,406 @@
+/* ==================== DASHBOARD ==================== */
+body {
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* ==================== ENCABEZADO ==================== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #0a1a29;
+  border-bottom: 2px solid #1e3a4d;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  color: #4db8ff;
+  letter-spacing: 3px;
+  margin: 0;
+}
+
+.header-left p {
+  font-size: 0.95rem;
+  color: #a0d0f0;
+  margin: 5px 0 0 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notificaciones-container {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.icono-campana {
+  transition: transform 0.3s ease;
+}
+
+.notificaciones-container:hover .icono-campana {
+  transform: scale(1.1);
+}
+
+.contador-notificaciones {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: #ff4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 3px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.btn-logout {
+  padding: 10px 18px;
+  background-color: #d9534f;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #c9302c;
+}
+
+/* ==================== PANEL NOTIFICACIONES ==================== */
+.panel-notificaciones {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 350px;
+  max-height: 400px;
+  background-color: #112b42;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  border: 1px solid #1e3a4d;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #0a1a29;
+  border-bottom: 1px solid #1e3a4d;
+}
+
+.panel-header h3 {
+  color: #4db8ff;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.panel-header button {
+  background: none;
+  border: none;
+  color: #a0d0f0;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.panel-body {
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.sin-notificaciones {
+  color: #a0d0f0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.notificacion-item {
+  padding: 10px;
+  border-bottom: 1px solid #1e3a4d;
+  font-size: 0.85rem;
+}
+
+.notificacion-item.alerta {
+  color: #ff6b6b;
+}
+
+.notificacion-item.ok {
+  color: #4db8ff;
+}
+
+/* ==================== PESTAÑAS ==================== */
+.tabs-container {
+  display: flex;
+  gap: 5px;
+  padding: 15px 30px;
+  background-color: #0a1a29;
+  border-bottom: 2px solid #1e3a4d;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  background-color: transparent;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: #a0d0f0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background-color: #112b42;
+  color: #4db8ff;
+}
+
+.tab-btn.active {
+  background-color: #2d7da4;
+  color: white;
+  border-color: #4db8ff;
+}
+
+/* ==================== CONTENIDO ==================== */
+.dashboard-content {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tab-content h2 {
+  color: #4db8ff;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+}
+
+/* ==================== TARJETAS (CARDS) ==================== */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: #112b42;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #1e3a4d;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card h3 {
+  color: #a0d0f0;
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+}
+
+.card .valor {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #4db8ff;
+  margin: 0 0 5px 0;
+}
+
+.card .estado {
+  font-size: 0.85rem;
+  color: #d0e5f5;
+  margin: 0;
+}
+
+.card.alerta {
+  border-color: #ff4444;
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+}
+
+.card.ok {
+  border-color: #4db8ff;
+}
+
+/* ==================== FILTROS ==================== */
+.filtros-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: flex-end;
+}
+
+.filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filtro label {
+  font-size: 0.85rem;
+  color: #a0d0f0;
+}
+
+.filtro input,
+.filtro select {
+  padding: 10px;
+  border: 2px solid #1e3a4d;
+  border-radius: 8px;
+  background-color: #0a1a29;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.filtro-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a0d0f0;
+  font-size: 0.85rem;
+}
+
+.btn-filtrar, .btn-generar {
+  padding: 10px 20px;
+  background-color: #2d7da4;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-filtrar:hover, .btn-generar:hover {
+  background-color: #1e5f80;
+}
+
+/* ==================== TABLAS ==================== */
+.tabla-container {
+  overflow-x: auto;
+  background-color: #112b42;
+  border-radius: 15px;
+  padding: 15px;
+  border: 1px solid #1e3a4d;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #1e3a4d;
+}
+
+th {
+  background-color: #0a1a29;
+  color: #4db8ff;
+  font-weight: bold;
+}
+
+td {
+  color: #d0e5f5;
+}
+
+/* ==================== GRÁFICA ==================== */
+.grafica-container {
+  background-color: #112b42;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #1e3a4d;
+  height: 400px;
+}
+
+/* ==================== VISTA PREVIA ==================== */
+.vista-previa {
+  background-color: #112b42;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #1e3a4d;
+  margin-top: 20px;
+  min-height: 200px;
+  color: #d0e5f5;
+}
+
+/* ==================== PIE DE PÁGINA ==================== */
+.dashboard-footer {
+  text-align: center;
+  padding: 20px;
+  color: #a0d0f0;
+  font-size: 0.85rem;
+  border-top: 1px solid #1e3a4d;
+  margin-top: 40px;
+}
+
+/* ==================== RESPONSIVO ==================== */
+@media (max-width: 900px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tabs-container {
+    padding: 10px 15px;
+  }
+
+  .tab-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+
+  .dashboard-content {
+    padding: 15px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-notificaciones {
+    width: 90%;
+    right: 5%;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
