@@ -374,8 +374,10 @@ td {
   }
 
   .header-right {
-    width: 100%;
-    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-direction: row-reverse; /* Invertir el orden visual */
   }
 
   .tabs-container {
