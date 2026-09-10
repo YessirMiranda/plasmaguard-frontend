@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Verificación de Administrador</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <header>
+    <h1>PLASMAGUARD</h1>
+    <p>Verificación de Administrador</p>
+  </header>
+
+  <div class="form-container-small">
+    <form id="formVerificacion" onsubmit="return verificarCodigoAdmin(event)">
+      <div class="form-group">
+        <label for="codigoAdmin">Código de Acceso</label>
+        <div class="password-container">
+          <input type="password" id="codigoAdmin" placeholder="Ingrese el código secreto" required>
+          <span class="toggle-password" onclick="togglePassword('codigoAdmin', this)">👁️</span>
+        </div>
+        <small class="error-msg" id="errorCodigo"></small>
+      </div>
+
+      <div class="form-buttons">
+        <button type="button" class="btn-volver" onclick="volverAlInicio()">← Volver</button>
+        <button type="submit" class="btn-crear">Verificar</button>
+      </div>
+
+      <div id="mensajeGeneral" class="mensaje-general"></div>
+    </form>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/sesion.js"></script>
+  <script>
+    const CLAVE_ADMIN = "KiriKiri@1230";
+    let intentos = 0;
+
+    function verificarCodigoAdmin(event) {
+      event.preventDefault();
+      const codigo = document.getElementById('codigoAdmin').value.trim();
+      const mensaje = document.getElementById('mensajeGeneral');
+
+      if (codigo === CLAVE_ADMIN) {
+        mensaje.style.color = '#4db8ff';
+        mensaje.innerText = '✅ Código correcto. Redirigiendo...';
+        sessionStorage.removeItem('admin_pendiente');
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 1500);
+      } else {
+        intentos++;
+        if (intentos >= 3) {
+          alert('🚫 Demasiados intentos fallidos. Será redirigido al inicio.');
+          cerrarSesion();
+        } else {
+          document.getElementById('errorCodigo').innerText = `Código incorrecto. Intento ${intentos}/3.`;
+        }
+      }
+      return false;
+    }
+
+    function volverAlInicio() {
+      cerrarSesion();
+    }
+  </script>
+</body>
+</html>
