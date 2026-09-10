@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Dashboard Técnico</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- ==================== MARCA DE AGUA ==================== -->
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== BARRA SUPERIOR ==================== -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span>📅 <span id="fechaActual"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <div class="notificaciones-container" onclick="toggleNotificaciones()">
+        <span class="icono-campana">🔔</span>
+        <span class="contador-notificaciones" id="contadorNotif">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>PLASMAGUARD</h1>
+      <p id="bienvenida">Bienvenido, Técnico</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <!-- ==================== BANNER DE MODO PRUEBAS ==================== -->
+  <div id="bannerModoPruebas" class="banner-modo-pruebas hidden">
+    <span>⚠️</span>
+    <span>MODO PRUEBAS ACTIVO - Los sensores no están siendo leídos. Los datos NO se envían a la nube.</span>
+    <button onclick="salirModoPruebas()">Salir de Modo Pruebas</button>
+  </div>
+
+  <!-- ==================== BANNER DE ESTADO ==================== -->
+  <div id="bannerEstado" class="banner-estado ok">
+    <span id="bannerIcono">✅</span>
+    <span id="bannerMensaje">Sistema operando con normalidad.</span>
+  </div>
+
+  <!-- ==================== PANEL DE NOTIFICACIONES ==================== -->
+  <div class="panel-notificaciones hidden" id="panelNotificaciones">
+    <div class="panel-header">
+      <h3>Notificaciones</h3>
+      <button onclick="toggleNotificaciones()">✖</button>
+    </div>
+    <div class="panel-body" id="listaNotificaciones">
+      <p class="sin-notificaciones">Sin notificaciones nuevas.</p>
+    </div>
+  </div>
+
+  <!-- ==================== PESTAÑAS ==================== -->
+  <nav class="tabs-container">
+    <button class="tab-btn active" onclick="cambiarTab('datos', this)">📊 Datos</button>
+    <button class="tab-btn" onclick="cambiarTab('notificaciones', this)">🔔 Notificaciones</button>
+    <button class="tab-btn" onclick="cambiarTab('tester', this)">🧪 Tester</button>
+    <button class="tab-btn" onclick="cambiarTab('documentacion', this)">📄 Documentación</button>
+    <button class="tab-btn" onclick="cambiarTab('manual', this)">📖 Manual</button>
+  </nav>
+
+  <!-- ==================== CONTENIDO ==================== -->
+  <main class="dashboard-content">
+
+    <!-- ==================== PESTAÑA: DATOS ==================== -->
+    <section id="tab-datos" class="tab-content active">
+      <h2>Visualización de Datos (Técnico)</h2>
+      <div class="cards-grid">
+        <div class="card" id="cardTemp1">
+          <h3>Sensor 1</h3>
+          <p class="valor" id="temp1">Cargando...</p>
+          <p class="estado" id="estadoTemp1">---</p>
+        </div>
+        <div class="card" id="cardTemp2">
+          <h3>Sensor 2</h3>
+          <p class="valor" id="temp2">Cargando...</p>
+          <p class="estado" id="estadoTemp2">---</p>
+        </div>
+        <div class="card" id="cardTemp3">
+          <h3>Sensor 3</h3>
+          <p class="valor" id="temp3">Cargando...</p>
+          <p class="estado" id="estadoTemp3">---</p>
+        </div>
+        <div class="card" id="cardAC">
+          <h3>Red Eléctrica (ZMPT101B)</h3>
+          <p class="valor" id="estadoAC">Cargando...</p>
+          <p class="estado" id="estadoACDetalle">---</p>
+        </div>
+        <div class="card" id="cardVoltaje">
+          <h3>Voltaje de Batería</h3>
+          <p class="valor" id="voltajeBateria">Cargando...</p>
+          <p class="estado" id="voltajeBateriaDetalle">---</p>
+        </div>
+        <div class="card" id="cardRouter">
+          <h3>Router</h3>
+          <p class="valor" id="estadoRouter">Cargando...</p>
+          <p class="estado" id="estadoRouterDetalle">---</p>
+        </div>
+        <div class="card" id="cardInternet">
+          <h3>Conexión a Internet</h3>
+          <p class="valor" id="estadoInternet">Cargando...</p>
+          <p class="estado" id="estadoInternetDetalle">---</p>
+        </div>
+        <div class="card" id="cardSD">
+          <h3>MicroSD</h3>
+          <p class="valor" id="estadoSD">Cargando...</p>
+          <p class="estado" id="estadoSDDetalle">---</p>
+        </div>
+        <div class="card" id="cardAlarma">
+          <h3>Alarmas</h3>
+          <p class="valor" id="estadoAlarma">Cargando...</p>
+          <p class="estado" id="estadoAlarmaDetalle">---</p>
+        </div>
+      </div>
+
+      <!-- Gráfica de voltaje -->
+      <div class="grafica-container" style="margin-top: 25px;">
+        <h3 style="color: #4db8ff; margin-bottom: 15px;">Historial de Voltaje de Batería</h3>
+        <canvas id="graficaVoltaje"></canvas>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: NOTIFICACIONES ==================== -->
+    <section id="tab-notificaciones" class="tab-content">
+      <h2>Panel de Notificaciones</h2>
+      <div class="filtros-container">
+        <div class="filtro">
+          <label>Fecha y Hora Inicio</label>
+          <input type="datetime-local" id="notifInicio">
+        </div>
+        <div class="filtro">
+          <label>Fecha y Hora Fin</label>
+          <input type="datetime-local" id="notifFin">
+        </div>
+        <button class="btn-filtrar" onclick="cargarNotificacionesHistorial()">Buscar</button>
+        <button class="btn-filtrar btn-borrar" onclick="borrarNotificaciones()">🗑️ Borrar Todas</button>
+      </div>
+      <div class="tabla-container">
+        <table id="tablaNotificaciones">
+          <thead>
+            <tr>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Tipo</th>
+              <th>Detalle</th>
+              <th>Duración</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5">Seleccione un rango de fechas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: TESTER ==================== -->
+    <section id="tab-tester" class="tab-content">
+      <h2>Tester de Componentes</h2>
+
+      <div class="tester-container">
+        <!-- Modo Pruebas -->
+        <div class="tester-card">
+          <h3>Modo Pruebas</h3>
+          <p>Activa el modo pruebas para dejar de leer sensores y poder probar componentes.</p>
+          <button class="btn-tester btn-activar" onclick="activarModoPruebas()">🧪 Activar Modo Pruebas</button>
+        </div>
+
+        <!-- LEDs -->
+        <div class="tester-card">
+          <h3>Prueba de LEDs</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarLED('rojo', true)">🔴 Encender Rojo</button>
+            <button class="btn-tester" onclick="probarLED('rojo', false)">⚫ Apagar Rojo</button>
+            <button class="btn-tester" onclick="probarLED('verde', true)">🟢 Encender Verde</button>
+            <button class="btn-tester" onclick="probarLED('verde', false)">⚫ Apagar Verde</button>
+            <button class="btn-tester" onclick="probarLED('amarillo', true)">🟡 Encender Amarillo</button>
+            <button class="btn-tester" onclick="probarLED('amarillo', false)">⚫ Apagar Amarillo</button>
+          </div>
+          <div class="tester-buttons" style="margin-top: 15px;">
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(1)">✨ Secuencia 1 (Ola)</button>
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(2)">✨ Secuencia 2 (Alternado)</button>
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(3)">✨ Secuencia 3 (Todos)</button>
+          </div>
+        </div>
+
+        <!-- Buzzer -->
+        <div class="tester-card">
+          <h3>Prueba de Buzzer</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarBuzzer(true)">🔔 Encender Buzzer</button>
+            <button class="btn-tester" onclick="probarBuzzer(false)">🔕 Apagar Buzzer</button>
+          </div>
+          <div class="tester-buttons" style="margin-top: 15px;">
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(1)">🎵 Melodía 1 (Beep corto)</button>
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(2)">🎵 Melodía 2 (Dos beeps)</button>
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(3)">🎵 Melodía 3 (Tres beeps)</button>
+          </div>
+        </div>
+
+        <!-- Relé -->
+        <div class="tester-card">
+          <h3>Prueba de Relé</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarRele(true)">🔌 Activar Relé (Cortar Router)</button>
+            <button class="btn-tester" onclick="probarRele(false)">🔌 Desactivar Relé (Restaurar Router)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: DOCUMENTACIÓN ==================== -->
+    <section id="tab-documentacion" class="tab-content">
+      <h2>Documentación de Falla</h2>
+      <div class="form-container-small" style="max-width: 700px; margin: 0 auto;">
+        <div class="form-group">
+          <label for="tipoFalla">Tipo de Falla</label>
+          <select id="tipoFalla">
+            <option value="temperatura">Temperatura fuera de rango</option>
+            <option value="apagon">Apagón</option>
+            <option value="bateria">Batería baja</option>
+            <option value="router">Router cortado</option>
+            <option value="internet">Sin conexión a internet</option>
+            <option value="sd">MicroSD no detectada</option>
+            <option value="sensor">Sensor desconectado</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="descripcionFalla">Descripción de la Falla</label>
+          <textarea id="descripcionFalla" rows="4" placeholder="Describa detalladamente el problema..." maxlength="500"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="solucionFalla">¿Se solucionó? ¿Cómo?</label>
+          <textarea id="solucionFalla" rows="4" placeholder="Describa la solución aplicada..." maxlength="500"></textarea>
+        </div>
+        <div class="form-group">
+          <label>¿Se solucionó?</label>
+          <div style="display: flex; gap: 20px; margin-top: 5px;">
+            <label><input type="radio" name="solucionado" value="si"> Sí</label>
+            <label><input type="radio" name="solucionado" value="no"> No</label>
+          </div>
+        </div>
+        <button class="btn-generar" onclick="generarDocumentoFalla()">📄 Generar Documento PDF</button>
+      </div>
+      <div id="vistaPreviaDoc" class="vista-previa" style="margin-top: 20px;">
+        <p>El documento generado aparecerá aquí.</p>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: MANUAL ==================== -->
+    <section id="tab-manual" class="tab-content">
+      <h2>Manual de Usuario</h2>
+      <div class="manual-container">
+        <p>Descargue o visualice el manual de usuario de PlasmaGuard.</p>
+        <div class="tester-buttons">
+          <button class="btn-tester" onclick="descargarManual()">📥 Descargar Manual PDF</button>
+          <button class="btn-tester" onclick="verManualEnPagina()">👁️ Ver Manual en la Página</button>
+        </div>
+        <div id="visorManual" class="visor-manual hidden">
+          <iframe id="iframeManual" src="" width="100%" height="600px"></iframe>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== PIE DE PÁGINA ==================== -->
+  <footer class="dashboard-footer">
+    <p>PlasmaGuard © 2026 - Banco de Sangre de Referencia Departamental de Potosí</p>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/sesion.js"></script>
+  <script src="js/dashboard_tecnico.js"></script>
+</body>
+</html>
