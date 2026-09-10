@@ -451,3 +451,24 @@ td {
   color: #ff7d7d;
   font-weight: bold;
 }
+
+.notificacion-item {
+  padding: 12px;
+  border-bottom: 1px solid #1e3a4d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.notificacion-item.alerta {
+  color: #ff6b6b;
+  background-color: rgba(255, 68, 68, 0.1);
+}
+
+.notificacion-item.advertencia {
+  color: #ffd77d;
+  background-color: rgba(255, 215, 125, 0.1);
+}
+
+.notificacion-item.ok {
+  color: #4db8ff;
+}
