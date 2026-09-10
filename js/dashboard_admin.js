@@ -502,3 +502,29 @@ async function borrarNotificaciones() {
   alert('✅ Notificaciones borradas.');
   cargarNotificacionesHistorial();
 }
+
+let modoSimulacionActivo = false;
+
+async function toggleModoSimulacion() {
+  modoSimulacionActivo = !modoSimulacionActivo;
+  const boton = document.getElementById('btnModoSimulacion');
+  const botonesSim = document.getElementById('botonesSimulacion');
+
+  if (modoSimulacionActivo) {
+    if (!confirm('¿Activar Modo Simulación? Los sensores dejarán de leerse.')) {
+      modoSimulacionActivo = false;
+      return;
+    }
+    await enviarComando('modo_simulacro');
+    boton.innerText = '⏸️ Desactivar Modo Simulación';
+    boton.classList.add('btn-desactivar');
+    botonesSim.style.display = 'flex';
+    document.getElementById('bannerModoPruebas').classList.remove('hidden');
+  } else {
+    await enviarComando('modo_normal');
+    boton.innerText = '🎭 Activar Modo Simulación';
+    boton.classList.remove('btn-desactivar');
+    botonesSim.style.display = 'none';
+    document.getElementById('bannerModoPruebas').classList.add('hidden');
+  }
+}
