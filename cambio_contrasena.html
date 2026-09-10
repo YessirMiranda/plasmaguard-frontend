@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Cambio de Contraseña</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==================== MARCA DE AGUA ==================== -->
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header>
+    <h1>PLASMAGUARD</h1>
+    <p>Cambio de Contraseña</p>
+  </header>
+
+  <!-- ==================== CONTENEDOR ==================== -->
+  <div class="form-container-small">
+
+    <form id="formCambio" onsubmit="return validarCambio(event)">
+
+      <div class="form-group">
+        <label for="nuevaPassword">Nueva Contraseña</label>
+        <input type="password" id="nuevaPassword" placeholder="Máx 10 caracteres" maxlength="10" required>
+        <small class="error-msg" id="errorNueva"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmarNueva">Confirmar Nueva Contraseña</label>
+        <input type="password" id="confirmarNueva" placeholder="Repita la contraseña" maxlength="10" required>
+        <small class="error-msg" id="errorConfirmar"></small>
+      </div>
+
+      <div class="form-buttons">
+        <button type="button" class="btn-volver" onclick="volverAlInicio()">← Volver</button>
+        <button type="submit" class="btn-crear">Guardar Contraseña</button>
+      </div>
+
+      <div id="mensajeGeneral" class="mensaje-general"></div>
+
+    </form>
+  </div>
+
+  <script src="js/cambio_contrasena.js"></script>
+</body>
+</html>
