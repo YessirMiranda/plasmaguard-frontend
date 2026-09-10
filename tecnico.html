@@ -14,19 +14,6 @@
     <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
   </div>
 
-  <!-- ==================== BARRA SUPERIOR ==================== -->
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <span>📅 <span id="fechaActual"></span></span>
-    </div>
-    <div class="top-bar-right">
-      <div class="notificaciones-container" onclick="toggleNotificaciones()">
-        <span class="icono-campana">🔔</span>
-        <span class="contador-notificaciones" id="contadorNotif">0</span>
-      </div>
-    </div>
-  </div>
-
   <!-- ==================== ENCABEZADO ==================== -->
   <header class="dashboard-header">
     <div class="header-left">
@@ -34,6 +21,10 @@
       <p id="bienvenida">Bienvenido, Técnico</p>
     </div>
     <div class="header-right">
+      <div class="notificaciones-container" onclick="toggleNotificaciones()">
+        <span class="icono-campana">🔔</span>
+        <span class="contador-notificaciones" id="contadorNotif">0</span>
+      </div>
       <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
     </div>
   </header>
