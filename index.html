@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0b1a2a;
+      color: white;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      flex-direction: column;
+    }
+    .container {
+      background-color: #112b42;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+    }
+    h1 { color: #4db8ff; letter-spacing: 2px; }
+    h2 { color: #a0d0f0; font-weight: normal; }
+    button {
+      background-color: #2d7da4;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background-color: #1e5f80; transform: scale(1.02); }
+    .data-box {
+      background-color: #0a1a29;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      text-align: left;
+    }
+    .data-box p {
+      font-size: 16px;
+      margin: 8px 0;
+      border-bottom: 1px solid #1e3a4d;
+      padding-bottom: 8px;
+    }
+    .data-box span { color: #4db8ff; font-weight: bold; float: right; }
+    .hidden { display: none; }
+    input {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #2d7da4;
+      background-color: #0a1a29;
+      color: white;
+      margin: 5px;
+      width: 80%;
+    }
+    .section-title { color: #4db8ff; font-weight: bold; margin-top: 20px; }
+    .volver { background-color: #555; margin-top: 20px; }
+    .volver:hover { background-color: #333; }
+  </style>
+</head>
+<body>
+
+  <!-- VENTANA 1: LOGIN -->
+  <div id="ventana1" class="container">
+    <h1>PLASMAGUARD</h1>
+    <h2>Monitoreo de Cadena de Frío</h2>
+    <button onclick="mostrarVentana('ventana2')">👤 OPERADOR</button>
+    <button onclick="mostrarVentana('ventana3')">🔧 TÉCNICO</button>
+  </div>
+
+  <!-- VENTANA 2: OPERADOR -->
+  <div id="ventana2" class="container hidden">
+    <h1>PLASMAGUARD</h1>
+    <h2>Panel de Operador</h2>
+    <div class="data-box">
+      <p>⚡ Red Eléctrica: <span id="estadoAC">Consultando...</span></p>
+      <p>🔋 Voltaje de Batería: <span id="voltaje">Consultando...</span></p>
+    </div>
+    <div class="data-box">
+      <p>🌡️ Sensor 1: <span id="sensor1">Consultando...</span></p>
+      <p>🌡️ Sensor 2: <span id="sensor2">Consultando...</span></p>
+      <p>🌡️ Sensor 3: <span id="sensor3">Consultando...</span></p>
+    </div>
+    <button class="volver" onclick="mostrarVentana('ventana1')">← Volver</button>
+  </div>
+
+  <!-- VENTANA 3: TÉCNICO -->
+  <div id="ventana3" class="container hidden">
+    <h1>PLASMAGUARD</h1>
+    <h2>Panel Técnico</h2>
+
+    <div class="data-box">
+      <p class="section-title">Modo del Sistema</p>
+      <button onclick="enviarComando('modo_normal')">✅ Normal</button>
+      <button onclick="enviarComando('modo_pruebas')">🧪 Pruebas</button>
+      <button onclick="enviarComando('modo_simulacro')">⚠️ Simulacro</button>
+    </div>
+
+    <div class="data-box">
+      <p class="section-title">Control de Alarmas</p>
+      <button onclick="enviarComando('activar_buzzer')">🔔 Activar Buzzer</button>
+      <button onclick="enviarComando('desactivar_buzzer')">🔕 Desactivar Buzzer</button>
+      <button onclick="enviarComando('activar_leds')">💡 Activar LEDs</button>
+      <button onclick="enviarComando('desactivar_leds')">⚫ Desactivar LEDs</button>
+    </div>
+
+    <div class="data-box">
+      <p class="section-title">Simulación de Energía</p>
+      <button onclick="enviarComando('simular_apagon')">🔌 Simular Apagón</button>
+      <button onclick="enviarComando('simular_retorno_energia')">⚡ Retornar Energía</button>
+    </div>
+
+    <div class="data-box">
+      <p class="section-title">Cambiar Umbrales</p>
+      <input type="number" id="tempMax" placeholder="Temp Máxima (°C)" step="0.1">
+      <input type="number" id="tempMin" placeholder="Temp Mínima (°C)" step="0.1">
+      <button onclick="cambiarUmbrales()">Actualizar Umbrales</button>
+    </div>
+
+    <div class="data-box">
+      <p class="section-title">Asignar Sensor</p>
+      <input type="text" id="direccionSensor" placeholder="Dirección (ej: 28AD3D94970503C0)">
+      <input type="number" id="numeroSensor" placeholder="N° Sensor (1, 2 o 3)" min="1" max="3">
+      <button onclick="asignarSensor()">Asignar</button>
+    </div>
+
+    <button class="volver" onclick="mostrarVentana('ventana1')">← Volver</button>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://plasmaguard-backend.onrender.com";
+
+    function mostrarVentana(id) {
+      document.getElementById('ventana1').classList.add('hidden');
+      document.getElementById('ventana2').classList.add('hidden');
+      document.getElementById('ventana3').classList.add('hidden');
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    async function cargarDatos() {
+      document.getElementById('estadoAC').innerText = "Consultando...";
+      document.getElementById('voltaje').innerText = "Consultando...";
+      document.getElementById('sensor1').innerText = "Consultando...";
+      document.getElementById('sensor2').innerText = "Consultando...";
+      document.getElementById('sensor3').innerText = "Consultando...";
+
+      try {
+        const respuesta = await fetch(BACKEND_URL + "/api/ultimo");
+        const datos = await respuesta.json();
+
+        if (datos.length > 0) {
+          const d = datos[0];
+          document.getElementById('estadoAC').innerText = d.estado_ac ? "Hay luz" : "Apagón";
+          document.getElementById('voltaje').innerText = d.voltaje_bateria + " V";
+          document.getElementById('sensor1').innerText = (d.sensor_1 != -127) ? d.sensor_1 + " °C" : "DESC";
+          document.getElementById('sensor2').innerText = (d.sensor_2 != -127) ? d.sensor_2 + " °C" : "DESC";
+          document.getElementById('sensor3').innerText = (d.sensor_3 != -127) ? d.sensor_3 + " °C" : "DESC";
+        } else {
+          document.querySelectorAll('.data-box span').forEach(el => el.innerText = "Sin datos aún");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        document.querySelectorAll('.data-box span').forEach(el => el.innerText = "Error de conexión");
+      }
+    }
+
+    async function enviarComando(comando) {
+      try {
+        const respuesta = await fetch(BACKEND_URL + "/api/comando", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comando: comando })
+        });
+        if (!respuesta.ok) throw new Error("HTTP " + respuesta.status);
+        alert("✅ Comando enviado: " + comando);
+      } catch (error) {
+        console.error(error);
+        alert("❌ No se pudo enviar el comando.");
+      }
+    }
+
+    async function cambiarUmbrales() {
+      const max = document.getElementById('tempMax').value;
+      const min = document.getElementById('tempMin').value;
+      if (max && min) {
+        await fetch(BACKEND_URL + "/api/comando", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comando: "cambiar_umbrales", valor: max + "," + min })
+        });
+        alert("Umbrales actualizados.");
+      }
+    }
+
+    async function asignarSensor() {
+      const dir = document.getElementById('direccionSensor').value;
+      const num = document.getElementById('numeroSensor').value;
+      if (dir && num) {
+        await fetch(BACKEND_URL + "/api/comando", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comando: "asignar_sensor", valor: num + "," + dir })
+        });
+        alert("Sensor asignado.");
+      }
+    }
+
+    cargarDatos();
+    setInterval(cargarDatos, 10000);
+  </script>
+</body>
+</html>
