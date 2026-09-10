@@ -405,6 +405,11 @@ async function generarInforme() {
 }
 
 function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('❌ Error: La librería jsPDF no está cargada.');
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
