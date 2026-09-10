@@ -417,6 +417,11 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
   const nombreUsuario = sesion ? sesion.nombre : 'Usuario';
   const institucion = sesion ? sesion.institucion : 'Banco de Sangre de Referencia Departamental de Potosí';
 
+  // *** CONVERSIÓN SEGURA DE VALORES ***
+  const inicioStr = (inicio === null || inicio === undefined) ? 'No especificado' : String(inicio);
+  const finStr = (fin === null || fin === undefined) ? 'No especificado' : String(fin);
+  const intervaloStr = (intervalo === null || intervalo === undefined) ? 'No especificado' : String(intervalo);
+
   // ==================== ENCABEZADO ====================
   doc.setFontSize(18);
   doc.setTextColor(40, 40, 40);
@@ -426,7 +431,7 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
   doc.text('Registro de Temperaturas', 105, 25, { align: 'center' });
 
   doc.setFontSize(10);
-  doc.text(institucion, 105, 32, { align: 'center' });
+  doc.text(String(institucion), 105, 32, { align: 'center' });
 
   // Línea separadora
   doc.setDrawColor(77, 184, 255);
@@ -442,8 +447,8 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
 
   doc.text(`Fecha de emisión: ${fechaEmision}`, 15, 45);
   doc.text(`Hora de emisión: ${hoy.getHours()}:${String(hoy.getMinutes()).padStart(2, '0')}`, 15, 51);
-  doc.text(`Período: ${inicio} al ${fin}`, 15, 57);
-  doc.text(`Datos por día: ${intervalo}`, 15, 63);
+  doc.text(`Período: ${inicioStr} al ${finStr}`, 15, 57);
+  doc.text(`Datos por día: ${intervaloStr}`, 15, 63);
   doc.text(`Solicitado por: ${nombreUsuario}`, 15, 69);
   doc.text(`Institución: ${institucion}`, 15, 75);
 
@@ -479,19 +484,19 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
     const fecha = new Date(d.created_at);
     const fechaStr = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${String(fecha.getHours()).padStart(2,'0')}:${String(fecha.getMinutes()).padStart(2,'0')}`;
     
-    const s1 = (d.sensor_1 === -127 || d.sensor_1 === null) ? 'No conectado' : d.sensor_1.toFixed(1) + ' °C';
-    const s2 = (d.sensor_2 === -127 || d.sensor_2 === null) ? 'No conectado' : d.sensor_2.toFixed(1) + ' °C';
-    const s3 = (d.sensor_3 === -127 || d.sensor_3 === null) ? 'No conectado' : d.sensor_3.toFixed(1) + ' °C';
+    const s1 = (d.sensor_1 === -127 || d.sensor_1 === null || d.sensor_1 === undefined) ? 'No conectado' : d.sensor_1.toFixed(1) + ' °C';
+    const s2 = (d.sensor_2 === -127 || d.sensor_2 === null || d.sensor_2 === undefined) ? 'No conectado' : d.sensor_2.toFixed(1) + ' °C';
+    const s3 = (d.sensor_3 === -127 || d.sensor_3 === null || d.sensor_3 === undefined) ? 'No conectado' : d.sensor_3.toFixed(1) + ' °C';
 
-    doc.text(fechaStr, 18, y + 4);
-    doc.text(s1, 70, y + 4);
-    doc.text(s2, 105, y + 4);
-    doc.text(s3, 140, y + 4);
+    doc.text(String(fechaStr), 18, y + 4);
+    doc.text(String(s1), 70, y + 4);
+    doc.text(String(s2), 105, y + 4);
+    doc.text(String(s3), 140, y + 4);
     y += 6;
   });
 
   // ==================== TABLA DE FALLAS ====================
-  if (fallas.length > 0) {
+  if (fallas && fallas.length > 0) {
     y += 10;
     if (y > 240) {
       doc.addPage();
@@ -527,13 +532,13 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
 
       const fInicio = new Date(f.inicio);
       const fFin = new Date(f.fin);
-      const inicioStr = `${fInicio.getDate()}/${fInicio.getMonth()+1} ${String(fInicio.getHours()).padStart(2,'0')}:${String(fInicio.getMinutes()).padStart(2,'0')}`;
-      const finStr = `${fFin.getDate()}/${fFin.getMonth()+1} ${String(fFin.getHours()).padStart(2,'0')}:${String(fFin.getMinutes()).padStart(2,'0')}`;
+      const inicioFStr = `${fInicio.getDate()}/${fInicio.getMonth()+1} ${String(fInicio.getHours()).padStart(2,'0')}:${String(fInicio.getMinutes()).padStart(2,'0')}`;
+      const finFStr = `${fFin.getDate()}/${fFin.getMonth()+1} ${String(fFin.getHours()).padStart(2,'0')}:${String(fFin.getMinutes()).padStart(2,'0')}`;
 
-      doc.text(inicioStr, 18, y + 4);
-      doc.text(finStr, 60, y + 4);
-      doc.text(f.tipo, 100, y + 4);
-      doc.text(f.detalle.substring(0, 30), 130, y + 4);
+      doc.text(String(inicioFStr), 18, y + 4);
+      doc.text(String(finFStr), 60, y + 4);
+      doc.text(String(f.tipo || '---'), 100, y + 4);
+      doc.text(String((f.detalle || '---').substring(0, 30)), 130, y + 4);
       y += 6;
     });
   }
@@ -566,7 +571,7 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
   doc.text(fechaEmision, 105, 270, { align: 'center' });
 
   // ==================== GUARDAR PDF ====================
-  const nombreArchivo = `Informe_PlasmaGuard_${inicio}_${fin}.pdf`;
+  const nombreArchivo = `Informe_PlasmaGuard_${inicioStr}_${finStr}.pdf`;
   doc.save(nombreArchivo);
 
   document.getElementById('vistaPreviaInforme').innerHTML = 
