@@ -11,7 +11,7 @@
 
   <!-- ==================== MARCA DE AGUA ==================== -->
   <div class="marca-agua">
-    <img src="img/plasma.png" alt="Plasma Fresco Congelado">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
   </div>
 
   <!-- ==================== ENCABEZADO ==================== -->
@@ -30,11 +30,12 @@
   </header>
 
   <!-- ==================== BANNER DE ESTADO ==================== -->
-<div id="bannerEstado" class="banner-estado ok">
-  <span id="bannerIcono">✅</span>
-  <span id="bannerMensaje">Sistema operando con normalidad.</span>
-</div>
-  <!-- ==================== PANEL DE NOTIFICACIONES (DESPLEGABLE) ==================== -->
+  <div id="bannerEstado" class="banner-estado ok">
+    <span id="bannerIcono">✅</span>
+    <span id="bannerMensaje">Sistema operando con normalidad.</span>
+  </div>
+
+  <!-- ==================== PANEL DE NOTIFICACIONES ==================== -->
   <div class="panel-notificaciones hidden" id="panelNotificaciones">
     <div class="panel-header">
       <h3>Notificaciones</h3>
@@ -54,7 +55,7 @@
     <button class="tab-btn" onclick="cambiarTab('reportes', this)">✉️ Reportes</button>
   </nav>
 
-  <!-- ==================== CONTENIDO DE PESTAÑAS ==================== -->
+  <!-- ==================== CONTENIDO ==================== -->
   <main class="dashboard-content">
 
     <!-- ==================== PESTAÑA: DATOS ==================== -->
@@ -254,11 +255,11 @@
   </footer>
 
   <!-- ==================== SCRIPTS ==================== -->
-  <script src="js/utils.js"></script>
-  <script src="js/sesion.js"></script>
-  <script src="js/dashboard_operador.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/sesion.js"></script>
+  <script src="js/dashboard_operador.js"></script>
 </body>
 </html>
