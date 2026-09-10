@@ -117,18 +117,26 @@ header p {
   color: #d0e5f5;
 }
 
-/* ==================== IMAGEN PROYECTO ==================== */
-.imagen-proyecto {
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  border: 1px solid #1e3a4d;
+/* ==================== MARCA DE AGUA ==================== */
+.marca-agua {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: -1; /* Detrás de todo */
+  pointer-events: none; /* No interfiere con clics */
+  opacity: 0.08; /* Transparencia (ajusta a tu gusto) */
 }
 
-.imagen-proyecto img {
-  width: 100%;
-  height: auto;
-  display: block;
+.marca-agua img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  filter: brightness(1.5) contrast(1.2); /* Opcional: ajusta para que se vea bien */
 }
 
 /* ==================== COLUMNA DERECHA (LOGIN) ==================== */
