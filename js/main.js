@@ -138,7 +138,8 @@ function validarLogin(event) {
     sessionStorage.setItem('plasmaguard_sesion', JSON.stringify({
       usuario: usuarioEncontrado.user,
       nombre: usuarioEncontrado.nombre,
-      rol: usuarioEncontrado.rol
+      rol: usuarioEncontrado.rol,
+      institucion: usuarioEncontrado.institucion || 'Banco de Sangre de Referencia Departamental de Potosí'
     }));
 
     // Redirigir según el rol
