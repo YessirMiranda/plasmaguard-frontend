@@ -42,18 +42,64 @@ function toggleNotificaciones() {
 }
 
 async function cargarNotificaciones() {
-  const notificaciones = [];
-  const contador = document.getElementById('contadorNotif');
-  const lista = document.getElementById('listaNotificaciones');
-  
-  if (notificaciones.length > 0) {
-    contador.innerText = notificaciones.length;
-    lista.innerHTML = notificaciones.map(n => 
-      `<div class="notificacion-item ${n.tipo}">${n.mensaje}</div>`
-    ).join('');
-  } else {
-    contador.innerText = '0';
-    lista.innerHTML = '<p class="sin-notificaciones">Sin notificaciones nuevas.</p>';
+  try {
+    // Consultar el último dato para saber el estado actual
+    const respUltimo = await fetch(BACKEND_URL + "/api/ultimo");
+    const datosUltimo = await respUltimo.json();
+
+    const notificaciones = [];
+
+    if (datosUltimo.length > 0) {
+      const d = datosUltimo[0];
+
+      // Verificar sensores desconectados
+      if (d.sensor_1 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 1 desconectado' });
+      if (d.sensor_2 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 2 desconectado' });
+      if (d.sensor_3 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 3 desconectado' });
+
+      // Verificar temperatura fuera de rango
+      if (d.sensor_1 !== -127 && (d.sensor_1 > -20 || d.sensor_1 < -40)) {
+        notificaciones.push({ tipo: 'alerta', mensaje: `🌡️ Temperatura anormal en Sensor 1: ${d.sensor_1.toFixed(1)}°C` });
+      }
+      if (d.sensor_2 !== -127 && (d.sensor_2 > -20 || d.sensor_2 < -40)) {
+        notificaciones.push({ tipo: 'alerta', mensaje: `🌡️ Temperatura anormal en Sensor 2: ${d.sensor_2.toFixed(1)}°C` });
+      }
+      if (d.sensor_3 !== -127 && (d.sensor_3 > -20 || d.sensor_3 < -40)) {
+        notificaciones.push({ tipo: 'alerta', mensaje: `🌡️ Temperatura anormal en Sensor 3: ${d.sensor_3.toFixed(1)}°C` });
+      }
+
+      // Verificar energía
+      if (!d.estado_ac) notificaciones.push({ tipo: 'alerta', mensaje: '⚡ Apagón detectado. Sistema en modo batería.' });
+
+      // Verificar router
+      if (!d.router_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '📡 Router cortado por batería baja.' });
+
+      // Verificar internet
+      if (!d.internet_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '🌐 Sin conexión a internet. Datos guardándose en MicroSD.' });
+
+      // Verificar batería
+      if (d.voltaje_bateria <= 11.0) notificaciones.push({ tipo: 'advertencia', mensaje: '🔋 Batería baja. Voltaje: ' + d.voltaje_bateria.toFixed(2) + 'V' });
+
+      // Verificar MicroSD
+      if (!d.sd_detectada) notificaciones.push({ tipo: 'advertencia', mensaje: '💾 MicroSD no detectada.' });
+    }
+
+    const contador = document.getElementById('contadorNotif');
+    const lista = document.getElementById('listaNotificaciones');
+
+    if (notificaciones.length > 0) {
+      contador.innerText = notificaciones.length;
+      contador.style.display = 'inline-block';
+      lista.innerHTML = notificaciones.map(n => 
+        `<div class="notificacion-item ${n.tipo}">${n.mensaje}</div>`
+      ).join('');
+    } else {
+      contador.innerText = '0';
+      contador.style.display = 'none'; // Ocultar el contador si no hay notificaciones
+      lista.innerHTML = '<p class="sin-notificaciones">Sin notificaciones nuevas.</p>';
+    }
+  } catch (error) {
+    console.error("Error cargando notificaciones:", error);
   }
 }
 
