@@ -482,3 +482,29 @@ header p {
 .btn-verificar:hover {
   background-color: #1e5f80;
 }
+
+/* ==================== OJO DE VISIBILIDAD ==================== */
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px; /* Espacio para el ojo */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #a0d0f0;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.toggle-password:hover {
+  color: #4db8ff;
+}
