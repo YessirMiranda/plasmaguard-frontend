@@ -1,14 +1,3 @@
-// ==================== VALIDACIÓN ====================
-function validarPassword(valor) {
-  // Máx 10, al menos 1 mayúscula, 1 minúscula, 1 número, 1 especial
-  if (valor.length > 10) return false;
-  if (!/[A-Z]/.test(valor)) return false;
-  if (!/[a-z]/.test(valor)) return false;
-  if (!/[0-9]/.test(valor)) return false;
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(valor)) return false;
-  return true;
-}
-
 // ==================== VALIDAR CAMBIO ====================
 function validarCambio(event) {
   event.preventDefault();
