@@ -1,6 +1,7 @@
 // ==================== CONFIGURACIÓN ====================
 const BACKEND_URL = "https://plasmaguard-backend.onrender.com";
 let graficaTemperaturas = null;
+let intervaloActualizacion = null;
 
 // ==================== VERIFICAR SESIÓN ====================
 const sesion = verificarSesion('operador');
@@ -774,4 +775,22 @@ function generarReporte() {
 
   // Limpiar el formulario
   document.getElementById('descripcionReporte').value = '';
+}
+
+function toggleTiempoReal() {
+  const boton = document.getElementById('btnTiempoReal');
+
+  if (intervaloActualizacion) {
+    // Detener actualización
+    clearInterval(intervaloActualizacion);
+    intervaloActualizacion = null;
+    boton.innerText = '⏱️ Tiempo Real';
+    boton.classList.remove('activo');
+  } else {
+    // Iniciar actualización
+    cargarTemperaturas(); // Cargar inmediatamente
+    intervaloActualizacion = setInterval(cargarTemperaturas, 10000); // Cada 10 segundos
+    boton.innerText = '⏸️ Detener';
+    boton.classList.add('activo');
+  }
 }
