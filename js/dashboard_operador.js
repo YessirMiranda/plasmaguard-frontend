@@ -802,3 +802,106 @@ function toggleTiempoReal() {
     boton.classList.add('activo');
   }
 }
+
+async function exportarCSV() {
+  const inicio = document.getElementById('tempInicio').value;
+  const fin = document.getElementById('tempFin').value;
+  const intervalo = document.getElementById('tempIntervalo').value;
+  const incluirFallas = document.getElementById('incluirFallas').checked;
+  const filtroSensor = document.getElementById('tempSensorFiltro').value;
+
+  if (!inicio || !fin) {
+    alert('Seleccione fecha y hora de inicio y fin antes de exportar.');
+    return;
+  }
+
+  try {
+    const inicioISO = inicio + ':00';
+    const finISO = fin + ':00';
+
+    // Consultar temperaturas
+    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicioISO}&fin=${finISO}&intervalo=${intervalo}`;
+    const respTemp = await fetch(url);
+    const datos = await respTemp.json();
+
+    if (!Array.isArray(datos) || datos.length === 0) {
+      alert('No hay datos en el período seleccionado para exportar.');
+      return;
+    }
+
+    // Consultar fallas (si se solicitó)
+    let fallas = [];
+    if (incluirFallas) {
+      const urlFallas = `${BACKEND_URL}/api/fallas?inicio=${inicioISO}&fin=${finISO}`;
+      const respFallas = await fetch(urlFallas);
+      fallas = await respFallas.json();
+    }
+
+    // Construir el CSV
+    let csv = '';
+
+    // Encabezado del reporte
+    csv += 'PLASMAGUARD - REGISTRO DE TEMPERATURAS\n';
+    csv += `Período: ${inicio} al ${fin}\n`;
+    csv += `Intervalo: ${intervalo} segundos\n`;
+    csv += `Generado: ${new Date().toLocaleString('es-BO')}\n`;
+    csv += `Filtro de sensor: ${filtroSensor === 'todos' ? 'Todos' : 'Sensor ' + filtroSensor}\n`;
+    csv += '\n';
+
+    // Encabezados de la tabla
+    csv += 'Fecha/Hora,Sensor 1 (°C),Sensor 2 (°C),Sensor 3 (°C)\n';
+
+    // Datos
+    datos.forEach(d => {
+      const fecha = new Date(d.created_at);
+      const fechaStr = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${String(fecha.getHours()).padStart(2,'0')}:${String(fecha.getMinutes()).padStart(2,'0')}:${String(fecha.getSeconds()).padStart(2,'0')}`;
+      
+      const s1 = (filtroSensor === 'todos' || filtroSensor === '1') 
+        ? ((d.sensor_1 === -127 || d.sensor_1 === null) ? 'No conectado' : d.sensor_1.toFixed(2))
+        : '';
+      const s2 = (filtroSensor === 'todos' || filtroSensor === '2')
+        ? ((d.sensor_2 === -127 || d.sensor_2 === null) ? 'No conectado' : d.sensor_2.toFixed(2))
+        : '';
+      const s3 = (filtroSensor === 'todos' || filtroSensor === '3')
+        ? ((d.sensor_3 === -127 || d.sensor_3 === null) ? 'No conectado' : d.sensor_3.toFixed(2))
+        : '';
+
+      csv += `"${fechaStr}","${s1}","${s2}","${s3}"\n`;
+    });
+
+    // Fallas
+    if (incluirFallas && fallas.length > 0) {
+      csv += '\n';
+      csv += 'FALLAS DETECTADAS\n';
+      csv += 'Inicio,Fin,Tipo,Detalle,Duración (seg)\n';
+
+      fallas.forEach(f => {
+        const fInicio = new Date(f.inicio);
+        const fFin = new Date(f.fin);
+        const inicioStr = `${fInicio.getDate()}/${fInicio.getMonth()+1}/${fInicio.getFullYear()} ${String(fInicio.getHours()).padStart(2,'0')}:${String(fInicio.getMinutes()).padStart(2,'0')}`;
+        const finStr = `${fFin.getDate()}/${fFin.getMonth()+1}/${fFin.getFullYear()} ${String(fFin.getHours()).padStart(2,'0')}:${String(fFin.getMinutes()).padStart(2,'0')}`;
+
+        csv += `"${inicioStr}","${finStr}","${f.tipo || '---'}","${(f.detalle || '---').replace(/"/g, '""')}","${f.duracion || 0}"\n`;
+      });
+    }
+
+    // Descargar el archivo
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
+    const link = document.createElement('a');
+    const urlBlob = URL.createObjectURL(blob);
+    const nombreArchivo = `PlasmaGuard_Datos_${inicio.replace(/[:.]/g, '-')}_${fin.replace(/[:.]/g, '-')}.csv`;
+
+    link.setAttribute('href', urlBlob);
+    link.setAttribute('download', nombreArchivo);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert(`✅ Datos exportados con éxito.\nArchivo: ${nombreArchivo}`);
+
+  } catch (error) {
+    console.error("Error exportando CSV:", error);
+    alert('Error al exportar los datos. Revise la consola.');
+  }
+}
