@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Dashboard Operador</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- ==================== MARCA DE AGUA ==================== -->
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>PLASMAGUARD</h1>
+      <p id="bienvenida">Bienvenido, Operador</p>
+    </div>
+    <div class="header-right">
+      <div class="notificaciones-container" onclick="toggleNotificaciones()">
+        <span class="icono-campana">🔔</span>
+        <span class="contador-notificaciones" id="contadorNotif">0</span>
+      </div>
+      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <!-- ==================== PANEL DE NOTIFICACIONES (DESPLEGABLE) ==================== -->
+  <div class="panel-notificaciones hidden" id="panelNotificaciones">
+    <div class="panel-header">
+      <h3>Notificaciones</h3>
+      <button onclick="toggleNotificaciones()">✖</button>
+    </div>
+    <div class="panel-body" id="listaNotificaciones">
+      <p class="sin-notificaciones">Sin notificaciones nuevas.</p>
+    </div>
+  </div>
+
+  <!-- ==================== PESTAÑAS ==================== -->
+  <nav class="tabs-container">
+    <button class="tab-btn active" onclick="cambiarTab('datos', this)">📊 Datos</button>
+    <button class="tab-btn" onclick="cambiarTab('fallas', this)">⚠️ Fallas</button>
+    <button class="tab-btn" onclick="cambiarTab('temperaturas', this)">🌡️ Temperaturas</button>
+    <button class="tab-btn" onclick="cambiarTab('informes', this)">📄 Informes</button>
+    <button class="tab-btn" onclick="cambiarTab('reportes', this)">✉️ Reportes</button>
+  </nav>
+
+  <!-- ==================== CONTENIDO DE PESTAÑAS ==================== -->
+  <main class="dashboard-content">
+
+    <!-- ==================== PESTAÑA: DATOS ==================== -->
+    <section id="tab-datos" class="tab-content active">
+      <h2>Visualización de Datos</h2>
+      <div class="cards-grid">
+        <div class="card" id="cardTemp1">
+          <h3>Sensor 1</h3>
+          <p class="valor" id="temp1">Cargando...</p>
+          <p class="estado" id="estadoTemp1">---</p>
+        </div>
+        <div class="card" id="cardTemp2">
+          <h3>Sensor 2</h3>
+          <p class="valor" id="temp2">Cargando...</p>
+          <p class="estado" id="estadoTemp2">---</p>
+        </div>
+        <div class="card" id="cardTemp3">
+          <h3>Sensor 3</h3>
+          <p class="valor" id="temp3">Cargando...</p>
+          <p class="estado" id="estadoTemp3">---</p>
+        </div>
+        <div class="card" id="cardAC">
+          <h3>Red Eléctrica</h3>
+          <p class="valor" id="estadoAC">Cargando...</p>
+          <p class="estado" id="estadoACDetalle">---</p>
+        </div>
+        <div class="card" id="cardRouter">
+          <h3>Router</h3>
+          <p class="valor" id="estadoRouter">Cargando...</p>
+          <p class="estado" id="estadoRouterDetalle">---</p>
+        </div>
+        <div class="card" id="cardInternet">
+          <h3>Conexión a Internet</h3>
+          <p class="valor" id="estadoInternet">Cargando...</p>
+          <p class="estado" id="estadoInternetDetalle">---</p>
+        </div>
+        <div class="card" id="cardBateria">
+          <h3>Batería</h3>
+          <p class="valor" id="estadoBateria">Cargando...</p>
+          <p class="estado" id="estadoBateriaDetalle">---</p>
+        </div>
+        <div class="card" id="cardSD">
+          <h3>MicroSD</h3>
+          <p class="valor" id="estadoSD">Cargando...</p>
+          <p class="estado" id="estadoSDDetalle">---</p>
+        </div>
+        <div class="card" id="cardAlarma">
+          <h3>Alarmas</h3>
+          <p class="valor" id="estadoAlarma">Cargando...</p>
+          <p class="estado" id="estadoAlarmaDetalle">---</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: FALLAS ==================== -->
+    <section id="tab-fallas" class="tab-content">
+      <h2>Registro de Fallas</h2>
+      <div class="filtros-container">
+        <div class="filtro">
+          <label>Fecha y Hora Inicio</label>
+          <input type="datetime-local" id="fallasInicio">
+        </div>
+        <div class="filtro">
+          <label>Fecha y Hora Fin</label>
+          <input type="datetime-local" id="fallasFin">
+        </div>
+        <button class="btn-filtrar" onclick="cargarFallas()">Buscar Fallas</button>
+      </div>
+      <div class="tabla-container">
+        <table id="tablaFallas">
+          <thead>
+            <tr>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Tipo de Falla</th>
+              <th>Sensor / Detalle</th>
+              <th>Duración</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5">Seleccione un rango de fechas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: TEMPERATURAS ==================== -->
+    <section id="tab-temperaturas" class="tab-content">
+      <h2>Registro de Temperaturas</h2>
+      <div class="filtros-container">
+        <div class="filtro">
+          <label>Fecha y Hora Inicio</label>
+          <input type="datetime-local" id="tempInicio">
+        </div>
+        <div class="filtro">
+          <label>Fecha y Hora Fin</label>
+          <input type="datetime-local" id="tempFin">
+        </div>
+        <div class="filtro">
+          <label>Intervalo de Muestreo</label>
+          <select id="tempIntervalo">
+            <option value="10">Tiempo Real (cada 10s)</option>
+            <option value="300">Cada 5 minutos</option>
+            <option value="3600">Cada 1 hora</option>
+            <option value="21600">Cada 6 horas</option>
+            <option value="86400">Cada 1 día</option>
+          </select>
+        </div>
+        <div class="filtro-check">
+          <label>
+            <input type="checkbox" id="incluirFallas"> Incluir fallas en el listado
+          </label>
+        </div>
+        <button class="btn-filtrar" onclick="cargarTemperaturas()">Buscar</button>
+      </div>
+
+      <div class="grafica-container">
+        <canvas id="graficaTemperaturas"></canvas>
+      </div>
+
+      <div class="tabla-container">
+        <table id="tablaTemperaturas">
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Sensor 1</th>
+              <th>Sensor 2</th>
+              <th>Sensor 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4">Seleccione un rango de fechas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: INFORMES ==================== -->
+    <section id="tab-informes" class="tab-content">
+      <h2>Generación de Informes</h2>
+      <div class="filtros-container">
+        <div class="filtro">
+          <label>Días a incluir</label>
+          <input type="number" id="informeDias" min="1" max="30" value="4">
+        </div>
+        <div class="filtro">
+          <label>Datos por día</label>
+          <select id="informeIntervalo">
+            <option value="1">1 dato por día</option>
+            <option value="4">4 datos por día (cada 6h)</option>
+            <option value="24">24 datos por día (cada 1h)</option>
+          </select>
+        </div>
+        <div class="filtro-check">
+          <label>
+            <input type="checkbox" id="informeIncluirFallas"> Incluir fallas
+          </label>
+        </div>
+        <button class="btn-generar" onclick="generarInforme()">Generar Informe PDF</button>
+      </div>
+      <div id="vistaPreviaInforme" class="vista-previa">
+        <p>El informe generado aparecerá aquí.</p>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: REPORTES ==================== -->
+    <section id="tab-reportes" class="tab-content">
+      <h2>Reportes y Consultas</h2>
+      <div class="form-container-small" style="max-width: 600px; margin: 0 auto;">
+        <div class="form-group">
+          <label for="tipoReporte">Tipo de Reporte</label>
+          <select id="tipoReporte">
+            <option value="consulta">Consulta</option>
+            <option value="reclamo">Reclamo</option>
+            <option value="sugerencia">Sugerencia</option>
+            <option value="falla">Reporte de Falla</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="descripcionReporte">Descripción</label>
+          <textarea id="descripcionReporte" rows="5" placeholder="Describa su consulta, reclamo o sugerencia..." maxlength="500"></textarea>
+        </div>
+        <button class="btn-generar" onclick="generarReporte()">Generar Reporte PDF</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== PIE DE PÁGINA ==================== -->
+  <footer class="dashboard-footer">
+    <p>PlasmaGuard © 2026 - Banco de Sangre de Referencia Departamental de Potosí</p>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="js/utils.js"></script>
+  <script src="js/sesion.js"></script>
+  <script src="js/dashboard_operador.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
