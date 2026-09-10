@@ -1,0 +1,246 @@
+/* ==================== ESTILOS GENERALES ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0b1a2a 0%, #1a3a52 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+/* ==================== ENCABEZADO ==================== */
+header {
+  text-align: center;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+header h1 {
+  font-size: 3.5rem;
+  color: #4db8ff;
+  letter-spacing: 5px;
+  text-shadow: 0 0 20px rgba(77, 184, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 1.2rem;
+  color: #a0d0f0;
+  letter-spacing: 3px;
+}
+
+/* ==================== CONTENEDOR PRINCIPAL ==================== */
+.main-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+  width: 100%;
+  max-width: 1300px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ==================== MENÚ LATERAL IZQUIERDO ==================== */
+.menu-lateral {
+  flex: 1;
+  min-width: 350px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.menu-item {
+  background-color: #112b42;
+  border-radius: 18px;
+  padding: 18px 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1e3a4d;
+}
+
+.menu-item:hover {
+  transform: scale(1.04);
+  background-color: #1a3f5c;
+  box-shadow: 0 8px 20px rgba(77, 184, 255, 0.4);
+  border-color: #4db8ff;
+}
+
+.menu-item h3 {
+  font-size: 1.15rem;
+  color: #4db8ff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-item h3::after {
+  content: '▼';
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.menu-item.active h3::after {
+  transform: rotate(180deg);
+}
+
+.menu-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+  margin-top: 0;
+}
+
+.menu-item.active .menu-content {
+  max-height: 300px;
+  margin-top: 15px;
+}
+
+.menu-content p {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: #d0e5f5;
+}
+
+/* ==================== FORMULARIO DE LOGIN (DERECHA) ==================== */
+.login-container {
+  flex: 1;
+  min-width: 350px;
+  max-width: 450px;
+  background-color: #112b42;
+  border-radius: 25px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  border: 1px solid #1e3a4d;
+}
+
+.login-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #4db8ff;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.95rem;
+  color: #a0d0f0;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #1e3a4d;
+  border-radius: 12px;
+  background-color: #0a1a29;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4db8ff;
+  box-shadow: 0 0 10px rgba(77, 184, 255, 0.4);
+}
+
+.btn-ingresar {
+  width: 100%;
+  padding: 14px;
+  background-color: #2d7da4;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+
+.btn-ingresar:hover {
+  background-color: #1e5f80;
+}
+
+.btn-crear-cuenta {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  border: 2px solid #2d7da4;
+  border-radius: 12px;
+  color: #4db8ff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.btn-crear-cuenta:hover {
+  background-color: #2d7da4;
+  color: white;
+}
+
+.mensaje-error {
+  color: #ff6b6b;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 15px;
+  min-height: 20px;
+}
+
+/* ==================== IMAGEN LOGIN ==================== */
+.imagen-login {
+  margin-top: 30px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1e3a4d;
+}
+
+.imagen-login img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==================== RESPONSIVO ==================== */
+@media (max-width: 900px) {
+  header h1 {
+    font-size: 2.5rem;
+  }
+
+  header p {
+    font-size: 1rem;
+  }
+
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .menu-lateral, .login-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .login-container {
+    padding: 30px;
+  }
+}
