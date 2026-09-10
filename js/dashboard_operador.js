@@ -349,8 +349,230 @@ function mostrarGraficaTemperaturas(datos) {
 }
 
 // ==================== INFORMES ====================
-function generarInforme() {
-  alert('Generación de informe PDF en desarrollo.');
+async function generarInforme() {
+  const inicio = document.getElementById('informeInicio').value;
+  const fin = document.getElementById('informeFin').value;
+  const intervalo = document.getElementById('informeIntervalo').value;
+  const incluirFallas = document.getElementById('informeIncluirFallas').checked;
+
+  if (!inicio || !fin) {
+    alert('Seleccione fecha de inicio y fin.');
+    return;
+  }
+
+  if (new Date(inicio) > new Date(fin)) {
+    alert('La fecha de inicio no puede ser mayor a la fecha fin.');
+    return;
+  }
+
+  try {
+    // Mostrar mensaje de carga
+    document.getElementById('vistaPreviaInforme').innerHTML = 
+      '<p>Generando informe... ⏳</p>';
+
+    // Calcular intervalo en segundos según la cantidad de datos por día
+    const intervaloSegundos = Math.floor(86400 / parseInt(intervalo));
+
+    // Consultar temperaturas
+    const inicioISO = inicio + 'T00:00:00';
+    const finISO = fin + 'T23:59:59';
+    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicioISO}&fin=${finISO}&intervalo=${intervaloSegundos}`;
+    const respTemp = await fetch(url);
+    const datos = await respTemp.json();
+
+    // Consultar fallas
+    let fallas = [];
+    if (incluirFallas) {
+      const urlFallas = `${BACKEND_URL}/api/fallas?inicio=${inicioISO}&fin=${finISO}`;
+      const respFallas = await fetch(urlFallas);
+      fallas = await respFallas.json();
+    }
+
+    if (!Array.isArray(datos) || datos.length === 0) {
+      alert('No hay datos en el período seleccionado.');
+      document.getElementById('vistaPreviaInforme').innerHTML = 
+        '<p>No hay datos en el período seleccionado.</p>';
+      return;
+    }
+
+    // Generar PDF
+    generarPDFInforme(datos, fallas, inicio, fin, intervalo);
+
+  } catch (error) {
+    console.error("Error generando informe:", error);
+    alert('Error al generar el informe. Revise la consola.');
+  }
+}
+
+function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const sesion = obtenerSesion();
+  const nombreUsuario = sesion ? sesion.nombre : 'Usuario';
+  const institucion = sesion ? sesion.institucion : 'Banco de Sangre de Referencia Departamental de Potosí';
+
+  // ==================== ENCABEZADO ====================
+  doc.setFontSize(18);
+  doc.setTextColor(40, 40, 40);
+  doc.text('PLASMAGUARD', 105, 15, { align: 'center' });
+
+  doc.setFontSize(12);
+  doc.text('Registro de Temperaturas', 105, 25, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text(institucion, 105, 32, { align: 'center' });
+
+  // Línea separadora
+  doc.setDrawColor(77, 184, 255);
+  doc.setLineWidth(0.5);
+  doc.line(15, 36, 195, 36);
+
+  // ==================== DATOS DEL INFORME ====================
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 60);
+
+  const hoy = new Date();
+  const fechaEmision = `Potosí, ${hoy.getDate()} de ${obtenerMes(hoy.getMonth())} del ${hoy.getFullYear()}`;
+
+  doc.text(`Fecha de emisión: ${fechaEmision}`, 15, 45);
+  doc.text(`Hora de emisión: ${hoy.getHours()}:${String(hoy.getMinutes()).padStart(2, '0')}`, 15, 51);
+  doc.text(`Período: ${inicio} al ${fin}`, 15, 57);
+  doc.text(`Datos por día: ${intervalo}`, 15, 63);
+  doc.text(`Solicitado por: ${nombreUsuario}`, 15, 69);
+  doc.text(`Institución: ${institucion}`, 15, 75);
+
+  // ==================== TABLA DE TEMPERATURAS ====================
+  let y = 85;
+  doc.setFontSize(10);
+  doc.setTextColor(40, 40, 40);
+  doc.text('Datos de Temperatura', 15, y);
+  y += 5;
+
+  doc.setFontSize(8);
+  doc.setFillColor(77, 184, 255);
+  doc.setTextColor(255, 255, 255);
+  doc.rect(15, y, 180, 7, 'F');
+  doc.text('Fecha/Hora', 18, y + 5);
+  doc.text('Sensor 1', 70, y + 5);
+  doc.text('Sensor 2', 105, y + 5);
+  doc.text('Sensor 3', 140, y + 5);
+  y += 7;
+
+  doc.setTextColor(60, 60, 60);
+  datos.forEach((d, index) => {
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
+
+    if (index % 2 === 0) {
+      doc.setFillColor(240, 248, 255);
+      doc.rect(15, y, 180, 6, 'F');
+    }
+
+    const fecha = new Date(d.created_at);
+    const fechaStr = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${String(fecha.getHours()).padStart(2,'0')}:${String(fecha.getMinutes()).padStart(2,'0')}`;
+    
+    const s1 = (d.sensor_1 === -127 || d.sensor_1 === null) ? 'No conectado' : d.sensor_1.toFixed(1) + ' °C';
+    const s2 = (d.sensor_2 === -127 || d.sensor_2 === null) ? 'No conectado' : d.sensor_2.toFixed(1) + ' °C';
+    const s3 = (d.sensor_3 === -127 || d.sensor_3 === null) ? 'No conectado' : d.sensor_3.toFixed(1) + ' °C';
+
+    doc.text(fechaStr, 18, y + 4);
+    doc.text(s1, 70, y + 4);
+    doc.text(s2, 105, y + 4);
+    doc.text(s3, 140, y + 4);
+    y += 6;
+  });
+
+  // ==================== TABLA DE FALLAS ====================
+  if (fallas.length > 0) {
+    y += 10;
+    if (y > 240) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.text('Fallas Detectadas', 15, y);
+    y += 5;
+
+    doc.setFontSize(8);
+    doc.setFillColor(255, 68, 68);
+    doc.setTextColor(255, 255, 255);
+    doc.rect(15, y, 180, 7, 'F');
+    doc.text('Inicio', 18, y + 5);
+    doc.text('Fin', 60, y + 5);
+    doc.text('Tipo', 100, y + 5);
+    doc.text('Detalle', 130, y + 5);
+    y += 7;
+
+    doc.setTextColor(60, 60, 60);
+    fallas.forEach((f, index) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      if (index % 2 === 0) {
+        doc.setFillColor(255, 240, 240);
+        doc.rect(15, y, 180, 6, 'F');
+      }
+
+      const fInicio = new Date(f.inicio);
+      const fFin = new Date(f.fin);
+      const inicioStr = `${fInicio.getDate()}/${fInicio.getMonth()+1} ${String(fInicio.getHours()).padStart(2,'0')}:${String(fInicio.getMinutes()).padStart(2,'0')}`;
+      const finStr = `${fFin.getDate()}/${fFin.getMonth()+1} ${String(fFin.getHours()).padStart(2,'0')}:${String(fFin.getMinutes()).padStart(2,'0')}`;
+
+      doc.text(inicioStr, 18, y + 4);
+      doc.text(finStr, 60, y + 4);
+      doc.text(f.tipo, 100, y + 4);
+      doc.text(f.detalle.substring(0, 30), 130, y + 4);
+      y += 6;
+    });
+  }
+
+  // ==================== PIE DE PÁGINA ====================
+  const totalPaginas = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPaginas; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Página ${i} de ${totalPaginas}`, 105, 290, { align: 'center' });
+    doc.text('PlasmaGuard - Sistema de Monitoreo de Cadena de Frío', 105, 295, { align: 'center' });
+  }
+
+  // ==================== FIRMAS ====================
+  doc.addPage();
+  doc.setFontSize(12);
+  doc.setTextColor(40, 40, 40);
+  doc.text('Firmas de Conformidad', 105, 30, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text('_____________________________', 30, 80);
+  doc.text('Dirección del Banco de Sangre', 30, 90);
+
+  doc.text('_____________________________', 120, 80);
+  doc.text('Personal Encargado del Área', 120, 90);
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  doc.text(fechaEmision, 105, 270, { align: 'center' });
+
+  // ==================== GUARDAR PDF ====================
+  const nombreArchivo = `Informe_PlasmaGuard_${inicio}_${fin}.pdf`;
+  doc.save(nombreArchivo);
+
+  document.getElementById('vistaPreviaInforme').innerHTML = 
+    `<p>✅ Informe generado con éxito. <br>Se descargó el archivo: <strong>${nombreArchivo}</strong></p>`;
+}
+
+// ==================== FUNCIÓN AUXILIAR: NOMBRE DEL MES ====================
+function obtenerMes(numeroMes) {
+  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  return meses[numeroMes];
 }
 
 // ==================== REPORTES ====================
