@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Crear Cuenta</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==================== MARCA DE AGUA ==================== -->
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header>
+    <h1>PLASMAGUARD</h1>
+    <p>Creación de Usuario</p>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <div class="form-container">
+
+    <form id="formCrearCuenta" onsubmit="return validarFormulario(event)">
+
+      <!-- ==================== SECCIÓN IZQUIERDA ==================== -->
+      <div class="form-column">
+        <h3>Datos Personales</h3>
+
+        <div class="form-group">
+          <label for="nombre">Nombre(s)</label>
+          <input type="text" id="nombre" placeholder="Ej: Juan Carlos" maxlength="30" required>
+          <small class="error-msg" id="errorNombre"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="apellidoPaterno">Apellido Paterno</label>
+          <input type="text" id="apellidoPaterno" placeholder="Ej: Pérez" maxlength="30" required>
+          <small class="error-msg" id="errorApellidoPaterno"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="apellidoMaterno">Apellido Materno</label>
+          <input type="text" id="apellidoMaterno" placeholder="Ej: Gómez" maxlength="30" required>
+          <small class="error-msg" id="errorApellidoMaterno"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaNacimiento">Fecha de Nacimiento</label>
+          <div class="fecha-container">
+            <input type="date" id="fechaNacimiento" required>
+            <input type="text" id="fechaManual" placeholder="XX/XX/XXXX" maxlength="10">
+          </div>
+          <small class="error-msg" id="errorFecha"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="ci">Carnet de Identidad (CI) - Será su Usuario</label>
+          <input type="text" id="ci" placeholder="Ej: 1234567" maxlength="12" required>
+          <small class="error-msg" id="errorCI"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="Máx 10 caracteres" maxlength="10" required>
+          <small class="error-msg" id="errorPassword"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmarPassword">Confirmar Contraseña</label>
+          <input type="password" id="confirmarPassword" placeholder="Repita la contraseña" maxlength="10" required>
+          <small class="error-msg" id="errorConfirmar"></small>
+        </div>
+      </div>
+
+      <!-- ==================== SECCIÓN DERECHA ==================== -->
+      <div class="form-column">
+        <h3>Datos de Usuario</h3>
+
+        <div class="form-group">
+          <label for="tipoUsuario">Tipo de Usuario</label>
+          <select id="tipoUsuario" required onchange="mostrarCampoTecnico()">
+            <option value="">Seleccione...</option>
+            <option value="operador">Operador</option>
+            <option value="tecnico">Técnico</option>
+          </select>
+          <small class="error-msg" id="errorTipo"></small>
+        </div>
+
+        <div class="form-group hidden" id="campoTecnico">
+          <label for="codigoTecnico">Código de Acceso (Técnico)</label>
+          <input type="password" id="codigoTecnico" placeholder="Ingrese el código secreto">
+          <small class="error-msg" id="errorCodigoTecnico"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="institucion">Institución</label>
+          <select id="institucion" required>
+            <option value="">Seleccione...</option>
+            <option value="potosi">Banco de Sangre de Referencia Departamental de Potosí</option>
+            <option value="cochabamba">Banco de Sangre de Referencia Departamental de Cochabamba</option>
+          </select>
+          <small class="error-msg" id="errorInstitucion"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="celular">Número de Celular</label>
+          <input type="tel" id="celular" placeholder="Ej: 76543210" maxlength="10" required>
+          <small class="error-msg" id="errorCelular"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion" placeholder="Ej: Av. Universitaria #123" maxlength="50" required>
+          <small class="error-msg" id="errorDireccion"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo Electrónico</label>
+          <input type="email" id="correo" placeholder="Ej: usuario@gmail.com" maxlength="50" required>
+          <small class="error-msg" id="errorCorreo"></small>
+        </div>
+      </div>
+
+      <!-- ==================== BOTONES ==================== -->
+      <div class="form-buttons">
+        <button type="button" class="btn-volver" onclick="volverAlInicio()">← Volver</button>
+        <button type="submit" class="btn-crear">Crear Usuario</button>
+      </div>
+
+      <div id="mensajeGeneral" class="mensaje-general"></div>
+
+    </form>
+  </div>
+
+  <script src="js/crear_cuenta.js"></script>
+</body>
+</html>
