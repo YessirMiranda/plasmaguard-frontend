@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Olvido de Contraseña</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==================== MARCA DE AGUA ==================== -->
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header>
+    <h1>PLASMAGUARD</h1>
+    <p>Recuperación de Contraseña</p>
+  </header>
+
+  <!-- ==================== CONTENEDOR ==================== -->
+  <div class="form-container-small">
+
+    <form id="formOlvido" onsubmit="return validarOlvido(event)">
+
+      <div class="form-group">
+        <label for="usuarioOlvido">Usuario (CI)</label>
+        <input type="text" id="usuarioOlvido" placeholder="Ej: 1234567" maxlength="12" required>
+        <small class="error-msg" id="errorUsuarioOlvido"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="correoOlvido">Correo Electrónico</label>
+        <input type="email" id="correoOlvido" placeholder="Ej: usuario@gmail.com" maxlength="50" required>
+        <small class="error-msg" id="errorCorreoOlvido"></small>
+      </div>
+
+      <button type="button" class="btn-enviar-codigo" onclick="enviarCodigo()">Enviar Código de Verificación</button>
+
+      <div class="form-group hidden" id="campoCodigo">
+        <label for="codigoVerificacion">Código de Verificación</label>
+        <input type="text" id="codigoVerificacion" placeholder="Ingrese el código de 6 dígitos" maxlength="6">
+        <small class="error-msg" id="errorCodigo"></small>
+      </div>
+
+      <button type="button" class="btn-verificar hidden" id="btnVerificar" onclick="verificarCodigo()">Verificar Código</button>
+
+      <div class="form-buttons">
+        <button type="button" class="btn-volver" onclick="volverAlInicio()">← Volver</button>
+      </div>
+
+      <div id="mensajeGeneral" class="mensaje-general"></div>
+
+    </form>
+  </div>
+
+  <script src="js/olvido_contrasena.js"></script>
+</body>
+</html>
