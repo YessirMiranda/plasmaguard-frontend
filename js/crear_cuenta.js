@@ -73,6 +73,33 @@ function validarCorreo(valor) {
   return true;
 }
 
+function validarFechaManual(fechaStr) {
+  // Formato esperado: DD/MM/AAAA
+  const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+  const match = fechaStr.match(regex);
+  if (!match) return false;
+
+  const dia = parseInt(match[1]);
+  const mes = parseInt(match[2]) - 1; // Mes 0-indexado
+  const anio = parseInt(match[3]);
+
+  const fecha = new Date(anio, mes, dia);
+  if (fecha.getDate() !== dia || fecha.getMonth() !== mes || fecha.getFullYear() !== anio) {
+    return false; // Fecha inválida (ej: 31/02/2000)
+  }
+
+  // Verificar mayoría de edad
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - anio;
+  const mesActual = hoy.getMonth();
+  const diaActual = hoy.getDate();
+
+  if (mesActual < mes || (mesActual === mes && diaActual < dia)) {
+    edad--;
+  }
+
+  return edad >= 18;
+}
 // ==================== VALIDACIÓN DEL FORMULARIO ====================
 function validarFormulario(event) {
   event.preventDefault();
@@ -104,17 +131,9 @@ function validarFormulario(event) {
   }
 
   // Fecha de Nacimiento
-  let fechaValor = document.getElementById('fechaNacimiento').value;
-  const fechaManual = document.getElementById('fechaManual').value.trim();
-  if (!fechaValor && fechaManual) {
-    // Convertir XX/XX/XXXX a YYYY-MM-DD
-    const partes = fechaManual.split('/');
-    if (partes.length === 3) {
-      fechaValor = `${partes[2]}-${partes[1]}-${partes[0]}`;
-    }
-  }
-  if (!validarFecha(fechaValor)) {
-    document.getElementById('errorFecha').innerText = 'Debe ser mayor de 18 años.';
+  const fechaInput = document.getElementById('fechaNacimiento').value.trim();
+  if (!validarFechaManual(fechaInput)) {
+    document.getElementById('errorFecha').innerText = 'Formato DD/MM/AAAA. Debe ser mayor de 18 años.';
     valido = false;
   }
 
@@ -211,18 +230,3 @@ function volverAlInicio() {
   window.location.href = 'index.html';
 }
 
-// ==================== SINCRONIZAR FECHA MANUAL CON CALENDARIO ====================
-document.addEventListener('DOMContentLoaded', () => {
-  const fechaManual = document.getElementById('fechaManual');
-  const fechaCalendario = document.getElementById('fechaNacimiento');
-
-  fechaManual.addEventListener('input', (e) => {
-    // Permitir solo números y /
-    let valor = e.target.value.replace(/[^0-9/]/g, '');
-    e.target.value = valor;
-  });
-
-  fechaCalendario.addEventListener('change', (e) => {
-    fechaManual.value = ''; // Limpiar el manual si se usa el calendario
-  });
-});
