@@ -150,7 +150,8 @@ function validarLogin(event) {
         sessionStorage.setItem('tecnico_pendiente', usuarioEncontrado.user);
         window.location.href = 'verificacion_tecnico.html';
       } else if (usuarioEncontrado.rol === 'admin') {
-        window.location.href = 'admin.html';
+        sessionStorage.setItem('admin_pendiente', usuarioEncontrado.user);
+        window.location.href = 'verificacion_admin.html';
       }
     }, 1000);
 
