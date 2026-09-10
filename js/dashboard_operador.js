@@ -721,8 +721,10 @@ function generarReporte() {
   const nombreArchivo = `Reporte_PlasmaGuard_${tipo}_${hoy.getFullYear()}${String(hoy.getMonth()+1).padStart(2,'0')}${String(hoy.getDate()).padStart(2,'0')}.pdf`;
   doc.save(nombreArchivo);
 
-  document.getElementById('vistaPreviaInforme')?.innerHTML = 
-    `<p>✅ Reporte generado con éxito. <br>Se descargó el archivo: <strong>${nombreArchivo}</strong></p>`;
+    const vistaPrevia = document.getElementById('vistaPreviaInforme');
+  if (vistaPrevia) {
+    vistaPrevia.innerHTML = `<p>✅ Reporte generado con éxito. <br>Se descargó el archivo: <strong>${nombreArchivo}</strong></p>`;
+  }
 
   // Limpiar el formulario
   document.getElementById('descripcionReporte').value = '';
