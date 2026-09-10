@@ -443,3 +443,9 @@ td {
 .banner-estado span:first-child {
   font-size: 1.2rem;
 }
+
+.fila-falla {
+  background-color: rgba(255, 68, 68, 0.1);
+  color: #ff7d7d;
+  font-weight: bold;
+}
