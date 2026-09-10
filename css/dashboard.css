@@ -44,7 +44,7 @@ body {
   cursor: pointer;
   font-size: 1.8rem;
   padding: 5px;
-  margin-right: 20px; /* Espacio adicional */
+  margin-right: 80px; /* Espacio adicional */
 }
 
 .icono-campana {
