@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('bienvenida').innerText = `Bienvenido, ${sesion.nombre} (Técnico)`;
     }
 
+    cargarGraficaVoltaje();
+    setInterval(cargarGraficaVoltaje, 60000); // Actualizar cada minuto
+    
     cargarDatos();
     setInterval(cargarDatos, 10000);
 
