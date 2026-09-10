@@ -135,8 +135,168 @@ function cargarFallas() {
 
 // ==================== TEMPERATURAS ====================
 function cargarTemperaturas() {
-  // Simulación (luego se conectará al backend)
-  alert('Función de carga de temperaturas en desarrollo.');
+  let graficaTemperaturas = null; // Variable global para la gráfica
+
+async function cargarTemperaturas() {
+  const inicio = document.getElementById('tempInicio').value;
+  const fin = document.getElementById('tempFin').value;
+  const intervalo = document.getElementById('tempIntervalo').value;
+  const incluirFallas = document.getElementById('incluirFallas').checked;
+
+  if (!inicio || !fin) {
+    alert('Seleccione fecha y hora de inicio y fin.');
+    return;
+  }
+
+  try {
+    // Convertir a formato ISO
+    const inicioISO = new Date(inicio).toISOString();
+    const finISO = new Date(fin).toISOString();
+
+    // Consultar temperaturas
+    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicioISO}&fin=${finISO}&intervalo=${intervalo}`;
+    const respuesta = await fetch(url);
+    const datos = await respuesta.json();
+
+    // Consultar fallas (si se solicitó)
+    let fallas = [];
+    if (incluirFallas) {
+      const urlFallas = `${BACKEND_URL}/api/fallas?inicio=${inicioISO}&fin=${finISO}`;
+      const respFallas = await fetch(urlFallas);
+      fallas = await respFallas.json();
+    }
+
+    // Mostrar tabla
+    mostrarTablaTemperaturas(datos, fallas);
+
+    // Mostrar gráfica
+    mostrarGraficaTemperaturas(datos);
+
+  } catch (error) {
+    console.error("Error cargando temperaturas:", error);
+    alert('Error al cargar los datos. Revise la consola.');
+  }
+}
+
+function mostrarTablaTemperaturas(datos, fallas) {
+  const tbody = document.querySelector('#tablaTemperaturas tbody');
+  tbody.innerHTML = '';
+
+  if (datos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4">No hay datos en este período.</td></tr>';
+    return;
+  }
+
+  // Combinar datos y fallas en una sola lista ordenada por fecha
+  let eventos = [];
+
+  datos.forEach(d => {
+    eventos.push({
+      fecha: new Date(d.created_at),
+      tipo: 'dato',
+      s1: d.sensor_1,
+      s2: d.sensor_2,
+      s3: d.sensor_3
+    });
+  });
+
+  fallas.forEach(f => {
+    eventos.push({
+      fecha: new Date(f.inicio),
+      tipo: 'falla',
+      falla: f
+    });
+  });
+
+  // Ordenar por fecha
+  eventos.sort((a, b) => a.fecha - b.fecha);
+
+  // Renderizar
+  eventos.forEach(e => {
+    const tr = document.createElement('tr');
+
+    if (e.tipo === 'dato') {
+      const fechaStr = e.fecha.toLocaleString('es-BO');
+      const s1 = (e.s1 === -127 || e.s1 === null) ? 'No conectado' : e.s1.toFixed(1) + ' °C';
+      const s2 = (e.s2 === -127 || e.s2 === null) ? 'No conectado' : e.s2.toFixed(1) + ' °C';
+      const s3 = (e.s3 === -127 || e.s3 === null) ? 'No conectado' : e.s3.toFixed(1) + ' °C';
+
+      tr.innerHTML = `<td>${fechaStr}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td>`;
+    } else {
+      const f = e.falla;
+      const inicioStr = new Date(f.inicio).toLocaleString('es-BO');
+      const finStr = new Date(f.fin).toLocaleString('es-BO');
+      tr.className = 'fila-falla';
+      tr.innerHTML = `<td>${inicioStr} - ${finStr}</td><td colspan="3">⚠️ Falla: ${f.detalle}</td>`;
+    }
+
+    tbody.appendChild(tr);
+  });
+}
+
+function mostrarGraficaTemperaturas(datos) {
+  const ctx = document.getElementById('graficaTemperaturas').getContext('2d');
+
+  // Destruir gráfica anterior si existe
+  if (graficaTemperaturas) {
+    graficaTemperaturas.destroy();
+  }
+
+  // Preparar datos
+  const etiquetas = datos.map(d => new Date(d.created_at).toLocaleString('es-BO'));
+  const s1 = datos.map(d => (d.sensor_1 === -127 ? null : d.sensor_1));
+  const s2 = datos.map(d => (d.sensor_2 === -127 ? null : d.sensor_2));
+  const s3 = datos.map(d => (d.sensor_3 === -127 ? null : d.sensor_3));
+
+  graficaTemperaturas = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: etiquetas,
+      datasets: [
+        {
+          label: 'Sensor 1',
+          data: s1,
+          borderColor: '#4db8ff',
+          backgroundColor: 'rgba(77, 184, 255, 0.1)',
+          tension: 0.3,
+          spanGaps: true
+        },
+        {
+          label: 'Sensor 2',
+          data: s2,
+          borderColor: '#ff6b6b',
+          backgroundColor: 'rgba(255, 107, 107, 0.1)',
+          tension: 0.3,
+          spanGaps: true
+        },
+        {
+          label: 'Sensor 3',
+          data: s3,
+          borderColor: '#ffd77d',
+          backgroundColor: 'rgba(255, 215, 125, 0.1)',
+          tension: 0.3,
+          spanGaps: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#d0e5f5' }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#a0d0f0', maxTicksLimit: 10 }
+        },
+        y: {
+          ticks: { color: '#a0d0f0' }
+        }
+      }
+    }
+  });
 }
 
 // ==================== INFORMES ====================
