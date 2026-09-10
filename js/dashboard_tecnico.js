@@ -238,16 +238,18 @@ async function borrarNotificaciones() {
     const respuesta = await fetch(BACKEND_URL + '/api/fallas/borrar', {
       method: 'DELETE'
     });
-    
+
+    const datos = await respuesta.json();
+
     if (respuesta.ok) {
       alert('✅ Notificaciones borradas correctamente.');
-      cargarNotificacionesHistorial();
+      cargarNotificacionesHistorial(); // Recargar la tabla
     } else {
-      alert('❌ Error al borrar las notificaciones.');
+      alert('❌ Error al borrar las notificaciones: ' + (datos.error || 'Error desconocido'));
     }
   } catch (error) {
     console.error("Error borrando notificaciones:", error);
-    alert('Error al borrar las notificaciones.');
+    alert('❌ Error al borrar las notificaciones. Revise la consola.');
   }
 }
 
