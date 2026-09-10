@@ -42,37 +42,6 @@ function validarFecha(fechaStr) {
   return true;
 }
 
-function validarCI(valor) {
-  // Solo números y guiones, máx 12
-  if (!/^[0-9-]+$/.test(valor)) return false;
-  if (valor.length > 12) return false;
-  return true;
-}
-
-function validarPassword(valor) {
-  // Máx 10, al menos 1 mayúscula, 1 minúscula, 1 número, 1 especial
-  if (valor.length > 10) return false;
-  if (!/[A-Z]/.test(valor)) return false;
-  if (!/[a-z]/.test(valor)) return false;
-  if (!/[0-9]/.test(valor)) return false;
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(valor)) return false;
-  return true;
-}
-
-function validarCelular(valor) {
-  // Solo números, máx 10
-  if (!/^[0-9]{1,10}$/.test(valor)) return false;
-  return true;
-}
-
-function validarCorreo(valor) {
-  // Debe terminar en dominios válidos
-  const dominios = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com'];
-  if (!dominios.some(d => valor.endsWith(d))) return false;
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) return false;
-  return true;
-}
-
 function validarFechaManual(fechaStr) {
   // Formato esperado: DD/MM/AAAA
   const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
