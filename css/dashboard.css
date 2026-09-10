@@ -611,3 +611,19 @@ td {
 .hidden {
   display: none !important;
 }
+
+.btn-tester.btn-desactivar {
+  background-color: #d9534f;
+}
+
+.btn-tester.btn-desactivar:hover {
+  background-color: #c9302c;
+}
+
+.btn-tester.btn-simular {
+  background-color: #7d5a3d;
+}
+
+.btn-tester.btn-simular:hover {
+  background-color: #6d4a2d;
+}
