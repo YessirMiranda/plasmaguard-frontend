@@ -235,12 +235,19 @@ async function borrarNotificaciones() {
   }
 
   try {
-    // Aquí se implementará la lógica para borrar las notificaciones de Supabase
-    alert('Función de borrado en desarrollo. Se implementará con Supabase.');
-    // await fetch(BACKEND_URL + '/api/fallas/borrar', { method: 'DELETE' });
-    cargarNotificacionesHistorial();
+    const respuesta = await fetch(BACKEND_URL + '/api/fallas/borrar', {
+      method: 'DELETE'
+    });
+    
+    if (respuesta.ok) {
+      alert('✅ Notificaciones borradas correctamente.');
+      cargarNotificacionesHistorial();
+    } else {
+      alert('❌ Error al borrar las notificaciones.');
+    }
   } catch (error) {
     console.error("Error borrando notificaciones:", error);
+    alert('Error al borrar las notificaciones.');
   }
 }
 
