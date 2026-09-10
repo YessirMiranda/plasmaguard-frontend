@@ -83,7 +83,7 @@ function validarLogin(event) {
   const usuariosValidos = [
     { user: '1234567', pass: 'Operador1!', rol: 'operador', nombre: 'Juan Pérez', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' },
     { user: '7654321', pass: 'Tecnico1!', rol: 'tecnico', nombre: 'María López', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' },
-    { user: '1111111', pass: 'Admin123!', rol: 'admin', nombre: 'Yessir Miranda', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' }
+    { user: '10509091', pass: 'KiriKiri@1230', rol: 'admin', nombre: 'Yessir Miranda', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' }
   ];
 
   // Buscar si el usuario existe
