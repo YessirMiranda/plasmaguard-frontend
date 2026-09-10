@@ -429,3 +429,56 @@ header p {
     max-width: 300px;
   }
 }
+/* ==================== FORMULARIO PEQUEÑO ==================== */
+.form-container-small {
+  width: 100%;
+  max-width: 500px;
+  background-color: #112b42;
+  border-radius: 25px;
+  padding: 35px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  border: 1px solid #1e3a4d;
+}
+
+.form-container-small form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.btn-enviar-codigo {
+  padding: 12px;
+  background-color: #2d7da4;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.btn-enviar-codigo:hover {
+  background-color: #1e5f80;
+}
+
+.btn-enviar-codigo:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.btn-verificar {
+  padding: 12px;
+  background-color: #2d7da4;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.btn-verificar:hover {
+  background-color: #1e5f80;
+}
