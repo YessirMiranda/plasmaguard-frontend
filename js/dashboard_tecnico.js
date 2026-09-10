@@ -13,11 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('bienvenida').innerText = `Bienvenido, ${sesion.nombre} (Técnico)`;
     }
 
-    // Mostrar fecha actual
-    const fecha = new Date();
-    const fechaStr = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()}`;
-    document.getElementById('fechaActual').innerText = fechaStr;
-
     cargarDatos();
     setInterval(cargarDatos, 10000);
 
