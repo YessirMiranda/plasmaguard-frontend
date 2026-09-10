@@ -36,7 +36,7 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 60px;
+  gap: 30px;
 }
 
 .notificaciones-container {
