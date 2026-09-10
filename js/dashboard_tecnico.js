@@ -446,9 +446,21 @@ function generarDocumentoFalla() {
 
 // ==================== MANUAL ====================
 function descargarManual() {
-  // URL del manual (debes subirlo a GitHub, Supabase Storage, o un servidor)
-  const urlManual = 'https://tu-servidor.com/manual_plasmaguard.pdf';
+  const urlManual = 'https://pwfkckrafympdltinjdo.supabase.co/storage/v1/object/public/manuales/User_Manual_LINEA_ESSE_ed.ES.pdf';
   window.open(urlManual, '_blank');
+}
+
+function verManualEnPagina() {
+  const visor = document.getElementById('visorManual');
+  const iframe = document.getElementById('iframeManual');
+
+  if (visor.classList.contains('hidden')) {
+    iframe.src = 'https://pwfkckrafympdltinjdo.supabase.co/storage/v1/object/public/manuales/User_Manual_LINEA_ESSE_ed.ES.pdf';
+    visor.classList.remove('hidden');
+  } else {
+    visor.classList.add('hidden');
+    iframe.src = '';
+  }
 }
 
 function verManualEnPagina() {
