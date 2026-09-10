@@ -153,13 +153,11 @@ function validarLogin(event) {
 
 // ==================== NAVEGACIÓN ====================
 function irACrearCuenta() {
-  alert('Aquí se redirigirá a la Ventana 2: Creación de Usuarios.');
-  // window.location.href = 'crear_cuenta.html';
+  window.location.href = 'crear_cuenta.html';
 }
 
 function irAOlvidoContrasena() {
-  alert('Aquí se redirigirá a la Ventana 3: Olvido de Contraseña.');
-  // window.location.href = 'olvido_contrasena.html';
+  window.location.href = 'olvido_contrasena.html';
 }
 
 // ==================== INICIALIZACIÓN ====================
