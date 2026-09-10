@@ -589,5 +589,141 @@ function obtenerMes(numeroMes) {
 
 // ==================== REPORTES ====================
 function generarReporte() {
-  alert('Generación de reporte PDF en desarrollo.');
+  const tipo = document.getElementById('tipoReporte').value;
+  const descripcion = document.getElementById('descripcionReporte').value.trim();
+
+  if (!descripcion) {
+    alert('Por favor, describa su consulta, reclamo o sugerencia.');
+    return;
+  }
+
+  if (descripcion.length < 10) {
+    alert('La descripción debe tener al menos 10 caracteres.');
+    return;
+  }
+
+  // Verificar jsPDF
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('❌ Error: La librería jsPDF no está cargada.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const sesion = obtenerSesion();
+  const nombreUsuario = sesion ? sesion.nombre : 'Usuario';
+  const institucion = (sesion && sesion.institucion && sesion.institucion.trim() !== '') 
+    ? sesion.institucion 
+    : 'Banco de Sangre de Referencia Departamental de Potosí';
+
+  const hoy = new Date();
+  const fechaEmision = `Potosí, ${hoy.getDate()} de ${obtenerMes(hoy.getMonth())} del ${hoy.getFullYear()}`;
+  const horaEmision = `${hoy.getHours()}:${String(hoy.getMinutes()).padStart(2, '0')}`;
+
+  // ==================== ENCABEZADO ====================
+  doc.setFontSize(18);
+  doc.setTextColor(40, 40, 40);
+  doc.text('PLASMAGUARD', 105, 15, { align: 'center' });
+
+  doc.setFontSize(12);
+  doc.text('Reporte de Consulta / Reclamo', 105, 25, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text(institucion, 105, 32, { align: 'center' });
+
+  // Línea separadora
+  doc.setDrawColor(77, 184, 255);
+  doc.setLineWidth(0.5);
+  doc.line(15, 36, 195, 36);
+
+  // ==================== DATOS DEL REPORTE ====================
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+
+  let y = 50;
+  doc.text(`Fecha de emisión: ${fechaEmision}`, 15, y);
+  y += 6;
+  doc.text(`Hora de emisión: ${horaEmision}`, 15, y);
+  y += 6;
+  doc.text(`Solicitado por: ${nombreUsuario}`, 15, y);
+  y += 6;
+  doc.text(`Institución: ${institucion}`, 15, y);
+  y += 10;
+
+  // ==================== TIPO DE REPORTE ====================
+  doc.setFontSize(12);
+  doc.setTextColor(40, 40, 40);
+  doc.text('Tipo de Reporte:', 15, y);
+  y += 7;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  
+  const tipos = {
+    'consulta': 'Consulta',
+    'reclamo': 'Reclamo',
+    'sugerencia': 'Sugerencia',
+    'falla': 'Reporte de Falla'
+  };
+  doc.text(tipos[tipo] || tipo, 20, y);
+  y += 12;
+
+  // ==================== DESCRIPCIÓN ====================
+  doc.setFontSize(12);
+  doc.setTextColor(40, 40, 40);
+  doc.text('Descripción:', 15, y);
+  y += 7;
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+
+  // Dividir el texto en líneas que quepan en el ancho de la página
+  const lineas = doc.splitTextToSize(descripcion, 170);
+  lineas.forEach(linea => {
+    if (y > 260) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.text(linea, 20, y);
+    y += 6;
+  });
+
+  y += 20;
+
+  // ==================== FIRMA ====================
+  if (y > 220) {
+    doc.addPage();
+    y = 40;
+  }
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  doc.text('_____________________________', 60, y + 30);
+  doc.text('Firma del Solicitante', 75, y + 40);
+  doc.text(nombreUsuario, 75, y + 46);
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  doc.text(fechaEmision, 105, 270, { align: 'center' });
+
+  // ==================== PIE DE PÁGINA ====================
+  const totalPaginas = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPaginas; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Página ${i} de ${totalPaginas}`, 105, 290, { align: 'center' });
+    doc.text('PlasmaGuard - Sistema de Monitoreo de Cadena de Frío', 105, 295, { align: 'center' });
+  }
+
+  // ==================== GUARDAR PDF ====================
+  const nombreArchivo = `Reporte_PlasmaGuard_${tipo}_${hoy.getFullYear()}${String(hoy.getMonth()+1).padStart(2,'0')}${String(hoy.getDate()).padStart(2,'0')}.pdf`;
+  doc.save(nombreArchivo);
+
+  document.getElementById('vistaPreviaInforme')?.innerHTML = 
+    `<p>✅ Reporte generado con éxito. <br>Se descargó el archivo: <strong>${nombreArchivo}</strong></p>`;
+
+  // Limpiar el formulario
+  document.getElementById('descripcionReporte').value = '';
 }
