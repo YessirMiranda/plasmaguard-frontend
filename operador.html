@@ -192,20 +192,25 @@
       <h2>Generación de Informes</h2>
       <div class="filtros-container">
         <div class="filtro">
-          <label>Días a incluir</label>
-          <input type="number" id="informeDias" min="1" max="30" value="4">
+          <label>Fecha Inicio</label>
+          <input type="date" id="informeInicio">
+        </div>
+        <div class="filtro">
+          <label>Fecha Fin</label>
+          <input type="date" id="informeFin">
         </div>
         <div class="filtro">
           <label>Datos por día</label>
           <select id="informeIntervalo">
-            <option value="1">1 dato por día</option>
-            <option value="4">4 datos por día (cada 6h)</option>
+            <option value="1">1 dato por día (00:00)</option>
+            <option value="4" selected>4 datos por día (cada 6h)</option>
+            <option value="8">8 datos por día (cada 3h)</option>
             <option value="24">24 datos por día (cada 1h)</option>
           </select>
         </div>
         <div class="filtro-check">
           <label>
-            <input type="checkbox" id="informeIncluirFallas"> Incluir fallas
+            <input type="checkbox" id="informeIncluirFallas" checked> Incluir fallas
           </label>
         </div>
         <button class="btn-generar" onclick="generarInforme()">Generar Informe PDF</button>
