@@ -48,14 +48,20 @@ header p {
   align-items: flex-start;
 }
 
-/* ==================== MENÚ LATERAL IZQUIERDO ==================== */
-.menu-lateral {
+/* ==================== COLUMNA IZQUIERDA ==================== */
+.columna-izquierda {
   flex: 1;
   min-width: 350px;
-  max-width: 500px;
+  max-width: 550px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
+}
+
+.menu-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .menu-item {
@@ -111,11 +117,28 @@ header p {
   color: #d0e5f5;
 }
 
-/* ==================== FORMULARIO DE LOGIN (DERECHA) ==================== */
-.login-container {
+/* ==================== IMAGEN PROYECTO ==================== */
+.imagen-proyecto {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid #1e3a4d;
+}
+
+.imagen-proyecto img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==================== COLUMNA DERECHA (LOGIN) ==================== */
+.columna-derecha {
   flex: 1;
   min-width: 350px;
   max-width: 450px;
+}
+
+.login-container {
   background-color: #112b42;
   border-radius: 25px;
   padding: 40px;
@@ -178,6 +201,11 @@ header p {
   background-color: #1e5f80;
 }
 
+.btn-ingresar:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
 .btn-crear-cuenta {
   width: 100%;
   padding: 12px;
@@ -196,6 +224,20 @@ header p {
   color: white;
 }
 
+.link-olvido {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #a0d0f0;
+  margin-top: 15px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.link-olvido:hover {
+  color: #4db8ff;
+}
+
 .mensaje-error {
   color: #ff6b6b;
   font-size: 0.95rem;
@@ -204,19 +246,12 @@ header p {
   min-height: 20px;
 }
 
-/* ==================== IMAGEN LOGIN ==================== */
-.imagen-login {
-  margin-top: 30px;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
-  border: 1px solid #1e3a4d;
-}
-
-.imagen-login img {
-  width: 100%;
-  height: auto;
-  display: block;
+.timer-bloqueo {
+  color: #ffaa00;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
 }
 
 /* ==================== RESPONSIVO ==================== */
@@ -235,7 +270,7 @@ header p {
     gap: 40px;
   }
 
-  .menu-lateral, .login-container {
+  .columna-izquierda, .columna-derecha {
     width: 100%;
     max-width: 100%;
   }
