@@ -291,10 +291,10 @@ header p {
 /* ==================== FORMULARIO CREAR CUENTA ==================== */
 .form-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1100px;
   background-color: #112b42;
   border-radius: 25px;
-  padding: 40px;
+  padding: 25px 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   border: 1px solid #1e3a4d;
 }
@@ -302,23 +302,23 @@ header p {
 .form-container form {
   display: flex;
   flex-wrap: wrap;
-  gap: 40px;
+  gap: 25px;
 }
 
 .form-column {
   flex: 1;
-  min-width: 300px;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .form-column h3 {
   color: #4db8ff;
-  font-size: 1.3rem;
-  margin-bottom: 15px;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
   border-bottom: 2px solid #1e3a4d;
-  padding-bottom: 10px;
+  padding-bottom: 6px;
   letter-spacing: 1px;
 }
 
@@ -328,21 +328,21 @@ header p {
 }
 
 .form-group label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #a0d0f0;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: 0.5px;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px;
+  padding: 9px 12px;
   border: 2px solid #1e3a4d;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: #0a1a29;
   color: white;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 
@@ -353,20 +353,11 @@ header p {
   box-shadow: 0 0 8px rgba(77, 184, 255, 0.3);
 }
 
-.fecha-container {
-  display: flex;
-  gap: 10px;
-}
-
-.fecha-container input {
-  flex: 1;
-}
-
 .error-msg {
   color: #ff6b6b;
-  font-size: 0.8rem;
-  margin-top: 4px;
-  min-height: 14px;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  min-height: 12px;
 }
 
 .hidden {
@@ -378,17 +369,17 @@ header p {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 
 .btn-volver {
-  padding: 14px 30px;
+  padding: 10px 25px;
   background-color: transparent;
   border: 2px solid #2d7da4;
-  border-radius: 12px;
+  border-radius: 10px;
   color: #4db8ff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -399,12 +390,12 @@ header p {
 }
 
 .btn-crear {
-  padding: 14px 40px;
+  padding: 10px 35px;
   background-color: #2d7da4;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   color: white;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.3s ease;
   letter-spacing: 1px;
@@ -417,9 +408,9 @@ header p {
 .mensaje-general {
   width: 100%;
   text-align: center;
-  font-size: 1rem;
-  margin-top: 20px;
-  min-height: 24px;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  min-height: 20px;
 }
 
 /* Responsivo para el formulario */
