@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlasmaGuard - Dashboard Administrador</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="marca-agua">
+    <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
+  </div>
+
+  <!-- ==================== ENCABEZADO ==================== -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>PLASMAGUARD</h1>
+      <p id="bienvenida">Bienvenido, Administrador</p>
+    </div>
+    <div class="header-right">
+      <div class="notificaciones-container" onclick="toggleNotificaciones()">
+        <span class="icono-campana">🔔</span>
+        <span class="contador-notificaciones" id="contadorNotif">0</span>
+      </div>
+      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <!-- ==================== BANNER DE MODO PRUEBAS ==================== -->
+  <div id="bannerModoPruebas" class="banner-modo-pruebas hidden">
+    <span>⚠️</span>
+    <span>MODO PRUEBAS / SIMULACIÓN ACTIVO - Los sensores no están siendo leídos.</span>
+    <button onclick="salirModoPruebas()">Salir de Modo Pruebas</button>
+  </div>
+
+  <!-- ==================== BANNER DE ESTADO ==================== -->
+  <div id="bannerEstado" class="banner-estado ok">
+    <span id="bannerIcono">✅</span>
+    <span id="bannerMensaje">Sistema operando con normalidad.</span>
+  </div>
+
+  <!-- ==================== PANEL DE NOTIFICACIONES ==================== -->
+  <div class="panel-notificaciones hidden" id="panelNotificaciones">
+    <div class="panel-header">
+      <h3>Notificaciones</h3>
+      <button onclick="toggleNotificaciones()">✖</button>
+    </div>
+    <div class="panel-body" id="listaNotificaciones">
+      <p class="sin-notificaciones">Sin notificaciones nuevas.</p>
+    </div>
+  </div>
+
+  <!-- ==================== PESTAÑAS ==================== -->
+  <nav class="tabs-container">
+    <button class="tab-btn active" onclick="cambiarTab('datos', this)">📊 Datos</button>
+    <button class="tab-btn" onclick="cambiarTab('notificaciones', this)">🔔 Notificaciones</button>
+    <button class="tab-btn" onclick="cambiarTab('tester', this)">🧪 Tester</button>
+    <button class="tab-btn" onclick="cambiarTab('variables', this)">⚙️ Variables</button>
+    <button class="tab-btn" onclick="cambiarTab('usuarios', this)">👥 Usuarios</button>
+    <button class="tab-btn" onclick="cambiarTab('datos-admin', this)">💾 Datos</button>
+    <button class="tab-btn" onclick="cambiarTab('auditoria', this)">📋 Auditoría</button>
+  </nav>
+
+  <main class="dashboard-content">
+
+    <!-- ==================== PESTAÑA: DATOS ==================== -->
+    <section id="tab-datos" class="tab-content active">
+      <h2>Visualización de Datos</h2>
+      <div class="cards-grid">
+        <div class="card" id="cardTemp1"><h3>Sensor 1</h3><p class="valor" id="temp1">Cargando...</p><p class="estado" id="estadoTemp1">---</p></div>
+        <div class="card" id="cardTemp2"><h3>Sensor 2</h3><p class="valor" id="temp2">Cargando...</p><p class="estado" id="estadoTemp2">---</p></div>
+        <div class="card" id="cardTemp3"><h3>Sensor 3</h3><p class="valor" id="temp3">Cargando...</p><p class="estado" id="estadoTemp3">---</p></div>
+        <div class="card" id="cardAC"><h3>Red Eléctrica</h3><p class="valor" id="estadoAC">Cargando...</p><p class="estado" id="estadoACDetalle">---</p></div>
+        <div class="card" id="cardVoltaje"><h3>Voltaje de Batería</h3><p class="valor" id="voltajeBateria">Cargando...</p><p class="estado" id="voltajeBateriaDetalle">---</p></div>
+        <div class="card" id="cardRouter"><h3>Router</h3><p class="valor" id="estadoRouter">Cargando...</p><p class="estado" id="estadoRouterDetalle">---</p></div>
+        <div class="card" id="cardInternet"><h3>Conexión a Internet</h3><p class="valor" id="estadoInternet">Cargando...</p><p class="estado" id="estadoInternetDetalle">---</p></div>
+        <div class="card" id="cardSD"><h3>MicroSD</h3><p class="valor" id="estadoSD">Cargando...</p><p class="estado" id="estadoSDDetalle">---</p></div>
+        <div class="card" id="cardAlarma"><h3>Alarmas</h3><p class="valor" id="estadoAlarma">Cargando...</p><p class="estado" id="estadoAlarmaDetalle">---</p></div>
+      </div>
+
+      <!-- Panel de Control Global -->
+      <div class="panel-control-global" style="margin-top: 30px;">
+        <h3>Panel de Control Global</h3>
+        <div class="cards-grid">
+          <div class="card"><h3>Total Usuarios</h3><p class="valor" id="totalUsuarios">---</p></div>
+          <div class="card"><h3>Total Registros</h3><p class="valor" id="totalRegistros">---</p></div>
+          <div class="card"><h3>Última Sincronización</h3><p class="valor" id="ultimaSync" style="font-size: 1rem;">---</p></div>
+          <div class="card"><h3>Espacio Usado</h3><p class="valor" id="espacioUsado">---</p></div>
+        </div>
+      </div>
+
+      <!-- Gráficas -->
+      <div class="grafica-container" style="margin-top: 25px;">
+        <h3 style="color: #4db8ff; margin-bottom: 15px;">Gráfica de Temperaturas</h3>
+        <div class="filtros-container">
+          <div class="filtro">
+            <label>Período</label>
+            <select id="graficaPeriodo" onchange="cargarGraficaTemperaturas()">
+              <option value="24">Últimas 24 horas</option>
+              <option value="168">Última semana</option>
+              <option value="720">Último mes</option>
+            </select>
+          </div>
+          <div class="filtro">
+            <label>Sensor</label>
+            <select id="graficaSensor" onchange="cargarGraficaTemperaturas()">
+              <option value="todos">Todos</option>
+              <option value="1">Sensor 1</option>
+              <option value="2">Sensor 2</option>
+              <option value="3">Sensor 3</option>
+            </select>
+          </div>
+        </div>
+        <canvas id="graficaTemperaturasAdmin"></canvas>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: NOTIFICACIONES ==================== -->
+    <section id="tab-notificaciones" class="tab-content">
+      <h2>Notificaciones</h2>
+      <div class="filtros-container">
+        <div class="filtro"><label>Inicio</label><input type="datetime-local" id="notifInicio"></div>
+        <div class="filtro"><label>Fin</label><input type="datetime-local" id="notifFin"></div>
+        <button class="btn-filtrar" onclick="cargarNotificacionesHistorial()">Buscar</button>
+        <button class="btn-filtrar btn-borrar" onclick="borrarNotificaciones()">🗑️ Borrar</button>
+      </div>
+      <div class="tabla-container">
+        <table id="tablaNotificaciones">
+          <thead><tr><th>Inicio</th><th>Fin</th><th>Tipo</th><th>Detalle</th><th>Duración</th></tr></thead>
+          <tbody><tr><td colspan="5">Seleccione un rango.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: TESTER ==================== -->
+    <section id="tab-tester" class="tab-content">
+      <h2>Tester de Componentes</h2>
+      <div class="tester-container">
+        <div class="tester-card">
+          <h3>Modo Pruebas</h3>
+          <p>Activa el modo pruebas para dejar de leer sensores.</p>
+          <button class="btn-tester btn-activar" onclick="activarModoPruebas()">🧪 Activar Modo Pruebas</button>
+        </div>
+        <div class="tester-card">
+          <h3>Modo Simulación</h3>
+          <p>Simula fallas para probar el sistema.</p>
+          <div class="tester-buttons">
+            <button class="btn-tester btn-simular" onclick="simularFalla('apagon')">⚡ Simular Apagón</button>
+            <button class="btn-tester btn-simular" onclick="simularFalla('temp_alta')">🌡️ Temp Alta</button>
+            <button class="btn-tester btn-simular" onclick="simularFalla('temp_baja')">❄️ Temp Baja</button>
+            <button class="btn-tester btn-simular" onclick="simularFalla('bateria_baja')">🔋 Batería Baja</button>
+            <button class="btn-tester btn-simular" onclick="simularFalla('retorno')">✅ Retornar Normal</button>
+          </div>
+        </div>
+        <div class="tester-card">
+          <h3>Prueba de LEDs</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarLED('rojo', true)">🔴 ON</button>
+            <button class="btn-tester" onclick="probarLED('rojo', false)">⚫ OFF</button>
+            <button class="btn-tester" onclick="probarLED('verde', true)">🟢 ON</button>
+            <button class="btn-tester" onclick="probarLED('verde', false)">⚫ OFF</button>
+            <button class="btn-tester" onclick="probarLED('amarillo', true)">🟡 ON</button>
+            <button class="btn-tester" onclick="probarLED('amarillo', false)">⚫ OFF</button>
+          </div>
+          <div class="tester-buttons" style="margin-top: 15px;">
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(1)">✨ Sec 1</button>
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(2)">✨ Sec 2</button>
+            <button class="btn-tester btn-secuencia" onclick="probarSecuenciaLEDs(3)">✨ Sec 3</button>
+          </div>
+        </div>
+        <div class="tester-card">
+          <h3>Prueba de Buzzer</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarBuzzer(true)">🔔 ON</button>
+            <button class="btn-tester" onclick="probarBuzzer(false)">🔕 OFF</button>
+          </div>
+          <div class="tester-buttons" style="margin-top: 15px;">
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(1)">🎵 Mel 1</button>
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(2)">🎵 Mel 2</button>
+            <button class="btn-tester btn-melodia" onclick="probarMelodia(3)">🎵 Mel 3</button>
+          </div>
+        </div>
+        <div class="tester-card">
+          <h3>Prueba de Relé</h3>
+          <div class="tester-buttons">
+            <button class="btn-tester" onclick="probarRele(true)">🔌 Activar</button>
+            <button class="btn-tester" onclick="probarRele(false)">🔌 Desactivar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: VARIABLES ==================== -->
+    <section id="tab-variables" class="tab-content">
+      <h2>Manejo de Variables</h2>
+      <div class="form-container-small" style="max-width: 700px; margin: 0 auto;">
+        <div class="form-group">
+          <label for="varTempMax">Temperatura Máxima (°C)</label>
+          <input type="number" id="varTempMax" step="0.1" value="-20.0">
+        </div>
+        <div class="form-group">
+          <label for="varTempMin">Temperatura Mínima (°C)</label>
+          <input type="number" id="varTempMin" step="0.1" value="-40.0">
+        </div>
+        <div class="form-group">
+          <label for="varVoltajeCorte">Voltaje de Corte del Router (V)</label>
+          <input type="number" id="varVoltajeCorte" step="0.1" value="10.5">
+        </div>
+        <div class="form-group">
+          <label for="varVoltajeRestaurar">Voltaje de Restauración (V)</label>
+          <input type="number" id="varVoltajeRestaurar" step="0.1" value="13.0">
+        </div>
+        <div class="form-group">
+          <label for="varIntervalo">Intervalo de Lectura (segundos)</label>
+          <input type="number" id="varIntervalo" step="1" value="10">
+        </div>
+        <button class="btn-generar" onclick="guardarVariables()">💾 Guardar Variables</button>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: USUARIOS ==================== -->
+    <section id="tab-usuarios" class="tab-content">
+      <h2>Manejo de Usuarios</h2>
+      <div class="filtros-container">
+        <div class="filtro">
+          <label>Filtrar por</label>
+          <select id="filtroUsuario">
+            <option value="todos">Todos</option>
+            <option value="operador">Operadores</option>
+            <option value="tecnico">Técnicos</option>
+          </select>
+        </div>
+        <button class="btn-filtrar" onclick="cargarUsuarios()">Buscar</button>
+        <button class="btn-filtrar btn-crear" onclick="crearUsuarioAdmin()">➕ Crear Usuario</button>
+      </div>
+      <div class="tabla-container">
+        <table id="tablaUsuarios">
+          <thead><tr><th>ID</th><th>Usuario (CI)</th><th>Nombre</th><th>Rol</th><th>Institución</th><th>Acciones</th></tr></thead>
+          <tbody><tr><td colspan="6">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: DATOS ADMIN ==================== -->
+    <section id="tab-datos-admin" class="tab-content">
+      <h2>Manejo de Datos</h2>
+      <div class="filtros-container">
+        <div class="filtro"><label>Inicio</label><input type="datetime-local" id="adminDataInicio"></div>
+        <div class="filtro"><label>Fin</label><input type="datetime-local" id="adminDataFin"></div>
+        <button class="btn-filtrar" onclick="cargarDatosAdmin()">Buscar</button>
+        <button class="btn-filtrar btn-borrar" onclick="borrarDatosAdmin()">🗑️ Borrar Rango</button>
+      </div>
+      <div class="tabla-container">
+        <table id="tablaDatosAdmin">
+          <thead><tr><th>ID</th><th>Fecha</th><th>Sensor 1</th><th>Sensor 2</th><th>Sensor 3</th><th>Voltaje</th><th>Acciones</th></tr></thead>
+          <tbody><tr><td colspan="7">Seleccione un rango.</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Borrado Automático -->
+      <div class="form-container-small" style="max-width: 700px; margin: 30px auto 0;">
+        <h3 style="color: #4db8ff; margin-bottom: 15px;">Borrado Automático</h3>
+        <div class="form-group">
+          <label for="autoBorrado">Frecuencia</label>
+          <select id="autoBorrado">
+            <option value="nunca">Nunca</option>
+            <option value="diario">Diario</option>
+            <option value="semanal">Semanal</option>
+            <option value="mensual">Mensual</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="autoBorradoDias">Borrar datos más antiguos que (días)</label>
+          <input type="number" id="autoBorradoDias" value="30" min="1">
+        </div>
+        <button class="btn-generar" onclick="guardarAutoBorrado()">💾 Guardar Configuración</button>
+      </div>
+    </section>
+
+    <!-- ==================== PESTAÑA: AUDITORÍA ==================== -->
+    <section id="tab-auditoria" class="tab-content">
+      <h2>Registro de Auditoría</h2>
+      <div class="tabla-container">
+        <table id="tablaAuditoria">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalles</th></tr></thead>
+          <tbody><tr><td colspan="4">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="dashboard-footer">
+    <p>PlasmaGuard © 2026 - Banco de Sangre de Referencia Departamental de Potosí</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/sesion.js"></script>
+  <script src="js/dashboard_admin.js"></script>
+</body>
+</html>
