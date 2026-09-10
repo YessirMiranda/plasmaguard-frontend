@@ -147,6 +147,9 @@
           <h3>Modo Simulación</h3>
           <p>Simula fallas para probar el sistema.</p>
           <div class="tester-buttons">
+            <button class="btn-tester btn-activar" id="btnModoSimulacion" onclick="toggleModoSimulacion()">🎭 Activar Modo Simulación</button>
+          </div>
+          <div class="tester-buttons" id="botonesSimulacion" style="margin-top: 15px; display: none;">
             <button class="btn-tester btn-simular" onclick="simularFalla('apagon')">⚡ Simular Apagón</button>
             <button class="btn-tester btn-simular" onclick="simularFalla('temp_alta')">🌡️ Temp Alta</button>
             <button class="btn-tester btn-simular" onclick="simularFalla('temp_baja')">❄️ Temp Baja</button>
