@@ -727,4 +727,3 @@ function generarReporte() {
   // Limpiar el formulario
   document.getElementById('descripcionReporte').value = '';
 }
-}
