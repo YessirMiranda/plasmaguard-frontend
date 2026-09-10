@@ -472,3 +472,7 @@ td {
 .notificacion-item.ok {
   color: #4db8ff;
 }
+
+.btn-filtrar.activo {
+  background-color: #ff6b6b;
+}
