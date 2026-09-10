@@ -479,3 +479,135 @@ td {
 .btn-filtrar.activo {
   background-color: #ff6b6b;
 }
+
+/* ==================== BANNER MODO PRUEBAS ==================== */
+.banner-modo-pruebas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px 30px;
+  background-color: #7d2d2d;
+  color: #ffcccc;
+  font-weight: bold;
+  border-bottom: 3px solid #ff4444;
+  animation: parpadeo 1.5s infinite;
+  flex-wrap: wrap;
+}
+
+.banner-modo-pruebas button {
+  padding: 8px 16px;
+  background-color: #ff4444;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.banner-modo-pruebas button:hover {
+  background-color: #cc0000;
+}
+
+/* ==================== TESTER ==================== */
+.tester-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.tester-card {
+  background-color: #112b42;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #1e3a4d;
+}
+
+.tester-card h3 {
+  color: #4db8ff;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.tester-card p {
+  color: #a0d0f0;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.tester-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-tester {
+  padding: 10px 15px;
+  background-color: #2d7da4;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-tester:hover {
+  background-color: #1e5f80;
+}
+
+.btn-tester.btn-activar {
+  background-color: #d9534f;
+}
+
+.btn-tester.btn-activar:hover {
+  background-color: #c9302c;
+}
+
+.btn-tester.btn-secuencia {
+  background-color: #5a3d7d;
+}
+
+.btn-tester.btn-secuencia:hover {
+  background-color: #4a2d6d;
+}
+
+.btn-tester.btn-melodia {
+  background-color: #7d5a3d;
+}
+
+.btn-tester.btn-melodia:hover {
+  background-color: #6d4a2d;
+}
+
+.btn-tester.btn-borrar {
+  background-color: #d9534f;
+}
+
+.btn-tester.btn-borrar:hover {
+  background-color: #c9302c;
+}
+
+/* ==================== MANUAL ==================== */
+.manual-container {
+  text-align: center;
+  padding: 30px;
+  background-color: #112b42;
+  border-radius: 15px;
+  border: 1px solid #1e3a4d;
+}
+
+.visor-manual {
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #1e3a4d;
+}
+
+.visor-manual iframe {
+  border: none;
+}
+
+.hidden {
+  display: none !important;
+}
