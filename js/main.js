@@ -129,27 +129,32 @@ function validarLogin(event) {
     }
   }
 
-  // Login exitoso
-  limpiarEstadoBloqueo();
-  mensaje.style.color = '#4db8ff';
-  mensaje.innerText = '✅ Bienvenido, ' + usuarioEncontrado.nombre + '. Redirigiendo...';
+    // Login exitoso
+    limpiarEstadoBloqueo();
+    mensaje.style.color = '#4db8ff';
+    mensaje.innerText = '✅ Bienvenido, ' + usuarioEncontrado.nombre + '. Redirigiendo...';
 
-  // Redirigir según el rol (simulado)
-  setTimeout(() => {
-    if (usuarioEncontrado.rol === 'operador') {
-      alert('🎉 Bienvenido OPERADOR. Aquí iría la Ventana de Dashboard de Operador.');
-      // window.location.href = 'operador.html';
-    } else if (usuarioEncontrado.rol === 'tecnico') {
-      alert('🔧 Bienvenido TÉCNICO. Debe ingresar su código de acceso.');
-      // window.location.href = 'verificacion_tecnico.html';
-    } else if (usuarioEncontrado.rol === 'admin') {
-      alert('👑 Bienvenido ADMINISTRADOR. Aquí iría el Dashboard de Admin.');
-      // window.location.href = 'admin.html';
-    }
-  }, 1000);
+    // Guardar sesión
+    sessionStorage.setItem('plasmaguard_sesion', JSON.stringify({
+      usuario: usuarioEncontrado.user,
+      nombre: usuarioEncontrado.nombre,
+      rol: usuarioEncontrado.rol
+    }));
 
-  return false;
-}
+    // Redirigir según el rol
+    setTimeout(() => {
+      if (usuarioEncontrado.rol === 'operador') {
+        window.location.href = 'operador.html';
+      } else if (usuarioEncontrado.rol === 'tecnico') {
+        sessionStorage.setItem('tecnico_pendiente', usuarioEncontrado.user);
+        window.location.href = 'verificacion_tecnico.html';
+      } else if (usuarioEncontrado.rol === 'admin') {
+        window.location.href = 'admin.html';
+      }
+    }, 1000);
+
+    return false;
+  }
 
 // ==================== NAVEGACIÓN ====================
 function irACrearCuenta() {
