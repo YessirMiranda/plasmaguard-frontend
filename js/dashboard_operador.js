@@ -1,3 +1,4 @@
+const BACKEND_URL = "https://plasmaguard-backend.onrender.com";
 // ==================== VERIFICAR SESIÓN ====================
 const sesion = verificarSesion('operador');
 if (!sesion) {
@@ -64,56 +65,50 @@ async function cargarNotificaciones() {
 
 // ==================== CARGA DE DATOS (Simulada) ====================
 async function cargarDatos() {
-  // Aquí se conectará al backend de Render para obtener los datos reales
-  // Por ahora, simulamos datos
-  
-  // Ejemplo de datos simulados
-  const datos = {
-    temp1: -29.5,
-    temp2: -28.3,
-    temp3: -127, // No conectado
-    estadoAC: true,
-    estadoRouter: true,
-    estadoInternet: true,
-    estadoBateria: true,
-    estadoSD: true,
-    estadoAlarma: false,
-    fallas: []
-  };
-  
-  actualizarTarjetas(datos);
-  actualizarBannerEstado(datos);
+  try {
+    const respuesta = await fetch(BACKEND_URL + "/api/ultimo");
+    const datos = await respuesta.json();
+    
+    if (datos.length > 0) {
+      actualizarTarjetas(datos[0]);
+      actualizarBannerEstado(datos[0]);
+    }
+  } catch (error) {
+    console.error("Error cargando datos:", error);
+  }
 }
 
-function actualizarTarjetas(datos) {
+function actualizarTarjetas(d) {
   // Temperaturas
-  actualizarCard('temp1', datos.temp1, 'estadoTemp1');
-  actualizarCard('temp2', datos.temp2, 'estadoTemp2');
-  actualizarCard('temp3', datos.temp3, 'estadoTemp3');
+  actualizarCard('temp1', d.sensor_1, 'estadoTemp1');
+  actualizarCard('temp2', d.sensor_2, 'estadoTemp2');
+  actualizarCard('temp3', d.sensor_3, 'estadoTemp3');
   
   // AC
-  document.getElementById('estadoAC').innerText = datos.estadoAC ? '✅ Conectada' : '❌ Apagón';
-  document.getElementById('cardAC').className = 'card ' + (datos.estadoAC ? 'ok' : 'alerta');
+  document.getElementById('estadoAC').innerText = d.estado_ac ? '✅ Conectada' : '❌ Apagón';
+  document.getElementById('cardAC').className = 'card ' + (d.estado_ac ? 'ok' : 'alerta');
   
   // Router
-  document.getElementById('estadoRouter').innerText = datos.estadoRouter ? '✅ Alimentado' : '❌ Cortado';
-  document.getElementById('cardRouter').className = 'card ' + (datos.estadoRouter ? 'ok' : 'alerta');
+  document.getElementById('estadoRouter').innerText = d.router_activo ? '✅ Alimentado' : '❌ Cortado';
+  document.getElementById('cardRouter').className = 'card ' + (d.router_activo ? 'ok' : 'alerta');
   
   // Internet
-  document.getElementById('estadoInternet').innerText = datos.estadoInternet ? '✅ Conectado' : '❌ Sin conexión';
-  document.getElementById('cardInternet').className = 'card ' + (datos.estadoInternet ? 'ok' : 'alerta');
+  document.getElementById('estadoInternet').innerText = d.internet_activo ? '✅ Conectado' : '❌ Sin conexión';
+  document.getElementById('cardInternet').className = 'card ' + (d.internet_activo ? 'ok' : 'alerta');
   
-  // Batería
-  document.getElementById('estadoBateria').innerText = datos.estadoBateria ? '✅ En buen estado' : '⚠️ Baja';
-  document.getElementById('cardBateria').className = 'card ' + (datos.estadoBateria ? 'ok' : 'alerta');
+  // Batería (solo mostrar OK/NO OK, no voltaje)
+  const bateriaOk = d.voltaje_bateria > 11.0;
+  document.getElementById('estadoBateria').innerText = bateriaOk ? '✅ En buen estado' : '⚠️ Baja';
+  document.getElementById('cardBateria').className = 'card ' + (bateriaOk ? 'ok' : 'alerta');
   
   // SD
-  document.getElementById('estadoSD').innerText = datos.estadoSD ? '✅ Detectada' : '❌ No detectada';
-  document.getElementById('cardSD').className = 'card ' + (datos.estadoSD ? 'ok' : 'alerta');
+  document.getElementById('estadoSD').innerText = d.sd_detectada ? '✅ Detectada' : '❌ No detectada';
+  document.getElementById('cardSD').className = 'card ' + (d.sd_detectada ? 'ok' : 'alerta');
   
   // Alarmas
-  document.getElementById('estadoAlarma').innerText = datos.estadoAlarma ? '⚠️ Alarma activa' : '✅ Sin alarmas';
-  document.getElementById('cardAlarma').className = 'card ' + (datos.estadoAlarma ? 'alerta' : 'ok');
+  const hayAlarma = !d.estado_ac || (d.sensor_1 !== -127 && (d.sensor_1 > -20 || d.sensor_1 < -40));
+  document.getElementById('estadoAlarma').innerText = hayAlarma ? '⚠️ Alarma activa' : '✅ Sin alarmas';
+  document.getElementById('cardAlarma').className = 'card ' + (hayAlarma ? 'alerta' : 'ok');
 }
 
 function actualizarCard(idValor, valor, idEstado) {
@@ -121,12 +116,12 @@ function actualizarCard(idValor, valor, idEstado) {
   const estado = document.getElementById(idEstado);
   const card = document.getElementById('card' + idValor.charAt(0).toUpperCase() + idValor.slice(1));
   
-  if (valor === -127) {
+  if (valor === -127 || valor === null || valor === undefined) {
     elemento.innerText = 'No conectado';
     estado.innerText = 'Sensor desconectado';
     card.className = 'card alerta';
   } else {
-    elemento.innerText = valor + ' °C';
+    elemento.innerText = valor.toFixed(1) + ' °C';
     estado.innerText = 'Lectura normal';
     card.className = 'card ok';
   }
