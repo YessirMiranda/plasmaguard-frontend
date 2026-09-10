@@ -461,3 +461,51 @@ function obtenerMes(numeroMes) {
                  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   return meses[numeroMes];
 }
+
+async function cargarGraficaVoltaje() {
+  try {
+    const fin = new Date().toISOString();
+    const inicio = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // Últimas 24h
+
+    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicio}&fin=${fin}&intervalo=3600`;
+    const respuesta = await fetch(url);
+    const datos = await respuesta.json();
+
+    if (!Array.isArray(datos) || datos.length === 0) return;
+
+    const ctx = document.getElementById('graficaVoltaje').getContext('2d');
+
+    if (graficaVoltaje) graficaVoltaje.destroy();
+
+    const etiquetas = datos.map(d => new Date(d.created_at).toLocaleString('es-BO'));
+    const voltajes = datos.map(d => d.voltaje_bateria);
+
+    graficaVoltaje = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: etiquetas,
+        datasets: [{
+          label: 'Voltaje de Batería (V)',
+          data: voltajes,
+          borderColor: '#4db8ff',
+          backgroundColor: 'rgba(77, 184, 255, 0.1)',
+          tension: 0.3,
+          spanGaps: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#d0e5f5' } }
+        },
+        scales: {
+          x: { ticks: { color: '#a0d0f0', maxTicksLimit: 10 } },
+          y: { ticks: { color: '#a0d0f0' } }
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error cargando gráfica de voltaje:", error);
+  }
+}
