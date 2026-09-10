@@ -82,6 +82,7 @@ async function cargarDatos() {
   };
   
   actualizarTarjetas(datos);
+  actualizarBannerEstado(datos);
 }
 
 function actualizarTarjetas(datos) {
@@ -153,4 +154,31 @@ function generarInforme() {
 function generarReporte() {
   // Simulación (luego se conectará al backend)
   alert('Generación de reporte PDF en desarrollo.');
+}
+
+function actualizarBannerEstado(datos) {
+  const banner = document.getElementById('bannerEstado');
+  const icono = document.getElementById('bannerIcono');
+  const mensaje = document.getElementById('bannerMensaje');
+
+  // Prioridad: Alerta > Advertencia > OK
+  if (datos.estadoAlarma) {
+    banner.className = 'banner-estado alerta';
+    icono.innerText = '🚨';
+    mensaje.innerText = 'ALARMA ACTIVA: ' + (datos.detalleAlarma || 'Revise el sistema inmediatamente.');
+  } else if (!datos.estadoAC || !datos.estadoRouter || !datos.estadoInternet || !datos.estadoBateria || !datos.estadoSD) {
+    banner.className = 'banner-estado advertencia';
+    icono.innerText = '⚠️';
+    let advertencias = [];
+    if (!datos.estadoAC) advertencias.push('Sin energía eléctrica');
+    if (!datos.estadoRouter) advertencias.push('Router cortado');
+    if (!datos.estadoInternet) advertencias.push('Sin conexión a internet');
+    if (!datos.estadoBateria) advertencias.push('Batería baja');
+    if (!datos.estadoSD) advertencias.push('MicroSD no detectada');
+    mensaje.innerText = 'Advertencia: ' + advertencias.join(', ') + '.';
+  } else {
+    banner.className = 'banner-estado ok';
+    icono.innerText = '✅';
+    mensaje.innerText = 'Sistema operando con normalidad.';
+  }
 }
