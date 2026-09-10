@@ -415,7 +415,9 @@ function generarPDFInforme(datos, fallas, inicio, fin, intervalo) {
 
   const sesion = obtenerSesion();
   const nombreUsuario = sesion ? sesion.nombre : 'Usuario';
-  const institucion = sesion ? sesion.institucion : 'Banco de Sangre de Referencia Departamental de Potosí';
+  const institucion = (sesion && sesion.institucion && sesion.institucion.trim() !== '') 
+  ? sesion.institucion 
+  : 'Banco de Sangre de Referencia Departamental de Potosí';
 
   // *** CONVERSIÓN SEGURA DE VALORES ***
   const inicioStr = (inicio === null || inicio === undefined) ? 'No especificado' : String(inicio);
