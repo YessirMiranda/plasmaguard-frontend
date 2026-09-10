@@ -469,7 +469,7 @@ function verManualEnPagina() {
 
   if (visor.classList.contains('hidden')) {
     // URL del manual
-    iframe.src = 'https://tu-servidor.com/manual_plasmaguard.pdf';
+    iframe.src = 'https://pwfkckrafympdltinjdo.supabase.co/storage/v1/object/public/manuales/User_Manual_LINEA_ESSE_ed.ES.pdf';
     visor.classList.remove('hidden');
   } else {
     visor.classList.add('hidden');
