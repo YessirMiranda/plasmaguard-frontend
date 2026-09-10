@@ -157,19 +157,19 @@ function actualizarBannerEstado(datos) {
   const mensaje = document.getElementById('bannerMensaje');
 
   // Prioridad: Alerta > Advertencia > OK
-  if (datos.estadoAlarma) {
+  if (datos.estado_alarma) {
     banner.className = 'banner-estado alerta';
     icono.innerText = '🚨';
-    mensaje.innerText = 'ALARMA ACTIVA: ' + (datos.detalleAlarma || 'Revise el sistema inmediatamente.');
-  } else if (!datos.estadoAC || !datos.estadoRouter || !datos.estadoInternet || !datos.estadoBateria || !datos.estadoSD) {
+    mensaje.innerText = 'ALARMA ACTIVA: ' + (datos.detalle_alarma || 'Revise el sistema inmediatamente.');
+  } else if (!datos.estado_ac || !datos.router_activo || !datos.internet_activo || (datos.voltaje_bateria <= 11.0) || !datos.sd_detectada) {
     banner.className = 'banner-estado advertencia';
     icono.innerText = '⚠️';
     let advertencias = [];
-    if (!datos.estadoAC) advertencias.push('Sin energía eléctrica');
-    if (!datos.estadoRouter) advertencias.push('Router cortado');
-    if (!datos.estadoInternet) advertencias.push('Sin conexión a internet');
-    if (!datos.estadoBateria) advertencias.push('Batería baja');
-    if (!datos.estadoSD) advertencias.push('MicroSD no detectada');
+    if (!datos.estado_ac) advertencias.push('Sin energía eléctrica');
+    if (!datos.router_activo) advertencias.push('Router cortado');
+    if (!datos.internet_activo) advertencias.push('Sin conexión a internet');
+    if (datos.voltaje_bateria <= 11.0) advertencias.push('Batería baja');
+    if (!datos.sd_detectada) advertencias.push('MicroSD no detectada');
     mensaje.innerText = 'Advertencia: ' + advertencias.join(', ') + '.';
   } else {
     banner.className = 'banner-estado ok';
