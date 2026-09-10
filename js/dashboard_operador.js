@@ -298,6 +298,7 @@ function mostrarGraficaTemperaturas(datos) {
     }
   });
 }
+}
 
 // ==================== INFORMES ====================
 function generarInforme() {
