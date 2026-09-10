@@ -17,66 +17,72 @@
   <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
   <div class="main-container">
 
-    <!-- ==================== MENÚ LATERAL IZQUIERDO ==================== -->
-    <div class="menu-lateral">
+    <!-- ==================== COLUMNA IZQUIERDA (MENÚ + IMAGEN) ==================== -->
+    <div class="columna-izquierda">
 
-      <div class="menu-item" onclick="toggleMenu(this)">
-        <h3>¿Qué es PLASMAGUARD?</h3>
-        <div class="menu-content">
-          <p>PLASMAGUARD es un sistema de monitoreo remoto diseñado para garantizar la cadena de frío del plasma fresco congelado en bancos de sangre. Utiliza sensores de alta precisión y conectividad IoT para alertar al personal ante cualquier anomalía.</p>
+      <div class="menu-lateral">
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <h3>¿Qué es PLASMAGUARD?</h3>
+          <div class="menu-content">
+            <p>PLASMAGUARD es un sistema de monitoreo remoto diseñado para garantizar la cadena de frío del plasma fresco congelado en bancos de sangre. Utiliza sensores de alta precisión y conectividad IoT para alertar al personal ante cualquier anomalía.</p>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <h3>Visión</h3>
+          <div class="menu-content">
+            <p>Ser el sistema de referencia en Bolivia para el monitoreo de cadena de frío en bancos de sangre, contribuyendo a la seguridad transfusional y a la calidad de los hemoderivados.</p>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <h3>Misión</h3>
+          <div class="menu-content">
+            <p>Proporcionar a los bancos de sangre una herramienta tecnológica confiable y accesible que permita monitorear en tiempo real la temperatura y el suministro eléctrico, reduciendo el riesgo de pérdida de plasma por fallas en la cadena de frío.</p>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <h3>¿Por qué es importante?</h3>
+          <div class="menu-content">
+            <p>El plasma fresco congelado debe mantenerse a temperaturas inferiores a -30°C. Cualquier fluctuación puede comprometer su viabilidad. PLASMAGUARD alerta al personal ante cortes de energía o variaciones de temperatura, permitiendo actuar de inmediato y salvar vidas.</p>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <h3>Nuestro Dispositivo</h3>
+          <div class="menu-content">
+            <p>El dispositivo consta de un microcontrolador ESP32, sensores de temperatura DS18B20, un sensor de voltaje de batería, un sensor de red eléctrica (ZMPT101B), un módulo de respaldo de energía, almacenamiento en MicroSD y conectividad WiFi para enviar datos a la nube.</p>
+          </div>
         </div>
       </div>
 
-      <div class="menu-item" onclick="toggleMenu(this)">
-        <h3>Visión</h3>
-        <div class="menu-content">
-          <p>Ser el sistema de referencia en Bolivia para el monitoreo de cadena de frío en bancos de sangre, contribuyendo a la seguridad transfusional y a la calidad de los hemoderivados.</p>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="toggleMenu(this)">
-        <h3>Misión</h3>
-        <div class="menu-content">
-          <p>Proporcionar a los bancos de sangre una herramienta tecnológica confiable y accesible que permita monitorear en tiempo real la temperatura y el suministro eléctrico, reduciendo el riesgo de pérdida de plasma por fallas en la cadena de frío.</p>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="toggleMenu(this)">
-        <h3>¿Por qué es importante?</h3>
-        <div class="menu-content">
-          <p>El plasma fresco congelado debe mantenerse a temperaturas inferiores a -30°C. Cualquier fluctuación puede comprometer su viabilidad. PLASMAGUARD alerta al personal ante cortes de energía o variaciones de temperatura, permitiendo actuar de inmediato y salvar vidas.</p>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="toggleMenu(this)">
-        <h3>Nuestro Dispositivo</h3>
-        <div class="menu-content">
-          <p>El dispositivo consta de un microcontrolador ESP32, sensores de temperatura DS18B20, un sensor de voltaje de batería, un sensor de red eléctrica (ZMPT101B), un módulo de respaldo de energía, almacenamiento en MicroSD y conectividad WiFi para enviar datos a la nube.</p>
-        </div>
+      <!-- Imagen debajo del menú -->
+      <div class="imagen-proyecto">
+        <img src="img/plasma.jpg" alt="Plasma Fresco Congelado">
       </div>
 
     </div>
 
-    <!-- ==================== FORMULARIO DE LOGIN (DERECHA) ==================== -->
-    <div class="login-container">
-      <h2>Login</h2>
-      <form id="loginForm" onsubmit="return validarLogin(event)">
-        <div class="form-group">
-          <label for="usuario">Usuario</label>
-          <input type="text" id="usuario" placeholder="Ingrese su usuario" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" placeholder="Ingrese su contraseña" required>
-        </div>
-        <button type="submit" class="btn-ingresar">Ingresar</button>
-        <button type="button" class="btn-crear-cuenta" onclick="crearCuenta()">Crear Cuenta</button>
-        <div id="mensajeError" class="mensaje-error"></div>
-      </form>
-
-      <!-- ==================== IMAGEN LOCAL ==================== -->
-      <div class="imagen-login">
-        <img src="img/plasma.png" alt="Plasma Fresco Congelado">
+    <!-- ==================== COLUMNA DERECHA (LOGIN) ==================== -->
+    <div class="columna-derecha">
+      <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="return validarLogin(event)">
+          <div class="form-group">
+            <label for="usuario">Usuario (CI)</label>
+            <input type="text" id="usuario" placeholder="Ej: 1234567" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" placeholder="Ingrese su contraseña" required>
+          </div>
+          <button type="submit" class="btn-ingresar" id="btnIngresar">Ingresar</button>
+          <button type="button" class="btn-crear-cuenta" onclick="irACrearCuenta()">Crear Cuenta</button>
+          <p class="link-olvido" onclick="irAOlvidoContrasena()">Si olvidó su contraseña pulse acá</p>
+          <div id="mensajeError" class="mensaje-error"></div>
+          <div id="timerBloqueo" class="timer-bloqueo"></div>
+        </form>
       </div>
     </div>
 
