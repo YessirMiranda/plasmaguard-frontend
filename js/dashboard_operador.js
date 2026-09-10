@@ -333,6 +333,7 @@ function mostrarTablaTemperaturas(datos, fallas) {
 }
 
 function mostrarGraficaTemperaturas(datos) {
+  const filtro = document.getElementById('tempSensorFiltro').value;
   const ctx = document.getElementById('graficaTemperaturas').getContext('2d');
 
   if (graficaTemperaturas) {
@@ -340,40 +341,47 @@ function mostrarGraficaTemperaturas(datos) {
   }
 
   const etiquetas = datos.map(d => new Date(d.created_at).toLocaleString('es-BO'));
-  const s1 = datos.map(d => (d.sensor_1 === -127 ? null : d.sensor_1));
-  const s2 = datos.map(d => (d.sensor_2 === -127 ? null : d.sensor_2));
-  const s3 = datos.map(d => (d.sensor_3 === -127 ? null : d.sensor_3));
+  
+  const datasets = [];
+  
+  if (filtro === 'todos' || filtro === '1') {
+    datasets.push({
+      label: 'Sensor 1',
+      data: datos.map(d => (d.sensor_1 === -127 ? null : d.sensor_1)),
+      borderColor: '#4db8ff',
+      backgroundColor: 'rgba(77, 184, 255, 0.1)',
+      tension: 0.3,
+      spanGaps: true
+    });
+  }
+  
+  if (filtro === 'todos' || filtro === '2') {
+    datasets.push({
+      label: 'Sensor 2',
+      data: datos.map(d => (d.sensor_2 === -127 ? null : d.sensor_2)),
+      borderColor: '#ff6b6b',
+      backgroundColor: 'rgba(255, 107, 107, 0.1)',
+      tension: 0.3,
+      spanGaps: true
+    });
+  }
+  
+  if (filtro === 'todos' || filtro === '3') {
+    datasets.push({
+      label: 'Sensor 3',
+      data: datos.map(d => (d.sensor_3 === -127 ? null : d.sensor_3)),
+      borderColor: '#ffd77d',
+      backgroundColor: 'rgba(255, 215, 125, 0.1)',
+      tension: 0.3,
+      spanGaps: true
+    });
+  }
 
   graficaTemperaturas = new Chart(ctx, {
     type: 'line',
     data: {
       labels: etiquetas,
-      datasets: [
-        {
-          label: 'Sensor 1',
-          data: s1,
-          borderColor: '#4db8ff',
-          backgroundColor: 'rgba(77, 184, 255, 0.1)',
-          tension: 0.3,
-          spanGaps: true
-        },
-        {
-          label: 'Sensor 2',
-          data: s2,
-          borderColor: '#ff6b6b',
-          backgroundColor: 'rgba(255, 107, 107, 0.1)',
-          tension: 0.3,
-          spanGaps: true
-        },
-        {
-          label: 'Sensor 3',
-          data: s3,
-          borderColor: '#ffd77d',
-          backgroundColor: 'rgba(255, 215, 125, 0.1)',
-          tension: 0.3,
-          spanGaps: true
-        }
-      ]
+      datasets: datasets
     },
     options: {
       responsive: true,
