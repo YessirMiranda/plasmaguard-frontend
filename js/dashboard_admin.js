@@ -235,7 +235,12 @@ async function salirModoPruebas() {
 }
 
 async function simularFalla(tipo) {
+  if (!modoSimulacionActivo) {
+    alert('⚠️ Debe activar el Modo Simulación primero.');
+    return;
+  }
   await enviarComando(`simular_${tipo}`);
+  alert(`✅ Simulación "${tipo}" activada.`);
 }
 
 async function probarLED(color, estado) {
