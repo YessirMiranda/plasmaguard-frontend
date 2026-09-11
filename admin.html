@@ -61,6 +61,7 @@
     <button class="tab-btn" onclick="cambiarTab('usuarios', this)">👥 Usuarios</button>
     <button class="tab-btn" onclick="cambiarTab('datos-admin', this)">💾 Datos</button>
     <button class="tab-btn" onclick="cambiarTab('auditoria', this)">📋 Auditoría</button>
+    <button class="tab-btn" onclick="cambiarTab('notificaciones-config', this)">📲 Notificaciones</button>
   </nav>
 
   <main class="dashboard-content">
@@ -290,6 +291,27 @@
           <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalles</th></tr></thead>
           <tbody><tr><td colspan="4">Cargando...</td></tr></tbody>
         </table>
+      </div>
+    </section>
+
+    <section id="tab-notificaciones-config" class="tab-content">
+      <h2>Configuración de Notificaciones</h2>
+      <div class="form-container-small" style="max-width: 700px; margin: 0 auto;">
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="notifActivas"> Activar Notificaciones
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="notifApiKey">API Key de CallMeBot (Messenger)</label>
+          <input type="text" id="notifApiKey" placeholder="Ej: 123456">
+        </div>
+        <div class="form-group">
+          <label for="notifDestinatarios">Destinatarios (separados por coma)</label>
+          <input type="text" id="notifDestinatarios" placeholder="Ej: 59176543210,59171234567">
+        </div>
+        <button class="btn-generar" onclick="guardarConfigNotificaciones()">💾 Guardar Configuración</button>
+        <button class="btn-generar" onclick="probarNotificacion()" style="margin-top: 10px;">🧪 Probar Notificación</button>
       </div>
     </section>
 
