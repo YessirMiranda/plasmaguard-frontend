@@ -543,7 +543,6 @@ async function cargarConfigNotificaciones() {
     
     document.getElementById('notifActivas').checked = c.notificaciones_activas === 'true';
     document.getElementById('notifApiKey').value = c.messenger_apikey || '';
-    document.getElementById('notifDestinatarios').value = c.messenger_destinatarios || '';
   } catch (error) {
     console.error("Error cargando config:", error);
   }
@@ -552,15 +551,13 @@ async function cargarConfigNotificaciones() {
 async function guardarConfigNotificaciones() {
   const activas = document.getElementById('notifActivas').checked;
   const apiKey = document.getElementById('notifApiKey').value;
-  const destinatarios = document.getElementById('notifDestinatarios').value;
 
   await fetch(BACKEND_URL + '/api/configuracion', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       notificaciones_activas: activas ? 'true' : 'false',
-      messenger_apikey: apiKey,
-      messenger_destinatarios: destinatarios
+      messenger_apikey: apiKey
     })
   });
   alert('✅ Configuración guardada.');
