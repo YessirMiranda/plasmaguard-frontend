@@ -550,7 +550,12 @@ async function cargarConfigNotificaciones() {
 
 async function guardarConfigNotificaciones() {
   const activas = document.getElementById('notifActivas').checked;
-  const apiKey = document.getElementById('notifApiKey').value;
+  const apiKey = document.getElementById('notifApiKey').value.trim(); // <-- .trim() elimina espacios
+
+  if (!apiKey) {
+    alert('⚠️ Ingrese una API Key válida.');
+    return;
+  }
 
   await fetch(BACKEND_URL + '/api/configuracion', {
     method: 'POST',
