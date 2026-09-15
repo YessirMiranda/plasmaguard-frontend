@@ -111,8 +111,30 @@ async function cargarDatos() {
     const datos = await respuesta.json();
     
     if (datos.length > 0) {
-      actualizarTarjetas(datos[0]);
-      actualizarBannerEstado(datos[0]);
+      const ultimo = datos[0];
+      
+      // Verificar si el dispositivo está activo
+      const ultimoRegistro = new Date(ultimo.created_at).getTime();
+      const ahora = Date.now();
+      const diferenciaMinutos = (ahora - ultimoRegistro) / 60000;
+      
+      if (diferenciaMinutos > 2) {
+        // Dispositivo apagado
+        document.getElementById('bannerEstado').className = 'banner-estado alerta';
+        document.getElementById('bannerIcono').innerText = '🔌';
+        document.getElementById('bannerMensaje').innerText = 'Dispositivo apagado o sin conexión (último dato hace ' + Math.round(diferenciaMinutos) + ' minutos).';
+        
+        // Mostrar "Dispositivo apagado" en las tarjetas
+        document.querySelectorAll('.card .valor').forEach(el => el.innerText = '---');
+        document.querySelectorAll('.card .estado').forEach(el => el.innerText = 'Dispositivo apagado');
+        document.querySelectorAll('.card').forEach(el => el.className = 'card');
+        
+        return;
+      }
+      
+      // Dispositivo activo: actualizar normalmente
+      actualizarTarjetas(ultimo);
+      actualizarBannerEstado(ultimo);
     }
   } catch (error) {
     console.error("Error cargando datos:", error);
