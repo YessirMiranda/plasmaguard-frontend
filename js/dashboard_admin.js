@@ -595,3 +595,27 @@ async function probarNotificacion() {
   await fetch(BACKEND_URL + '/api/notificaciones/probar', { method: 'POST' });
   alert('✅ Notificación de prueba enviada.');
 }
+
+async function guardarWiFi() {
+  const ssid1 = document.getElementById('wifiSsid1').value.trim();
+  const pass1 = document.getElementById('wifiPass1').value.trim();
+  const ssid2 = document.getElementById('wifiSsid2').value.trim();
+  const pass2 = document.getElementById('wifiPass2').value.trim();
+
+  if (!ssid1 || !pass1) {
+    alert('⚠️ La red principal es obligatoria.');
+    return;
+  }
+
+  try {
+    await fetch(BACKEND_URL + '/api/comando/wifi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ssid1, pass1, ssid2, pass2 })
+    });
+    alert('✅ Comando enviado. El ESP32 se reconectará en breve.');
+  } catch (error) {
+    console.error("Error:", error);
+    alert('❌ Error al enviar comando WiFi.');
+  }
+}
