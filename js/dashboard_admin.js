@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarGraficaTemperaturas();
   cargarUsuarios();
   cargarAuditoria();
+  cargarDestinatarios();
 });
 
 // ==================== CAMBIO DE PESTAÑAS ====================
@@ -617,5 +618,104 @@ async function guardarWiFi() {
   } catch (error) {
     console.error("Error:", error);
     alert('❌ Error al enviar comando WiFi.');
+  }
+}
+
+// ==================== DESTINATARIOS ====================
+async function cargarDestinatarios() {
+  try {
+    const resp = await fetch(BACKEND_URL + '/api/destinatarios');
+    const destinatarios = await resp.json();
+
+    const tbody = document.querySelector('#tablaDestinatarios tbody');
+    tbody.innerHTML = '';
+
+    if (!Array.isArray(destinatarios) || destinatarios.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">No hay destinatarios registrados.</td></tr>';
+      return;
+    }
+
+    destinatarios.forEach(d => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${d.id}</td>
+        <td>${d.nombre}</td>
+        <td>${d.apikey.substring(0, 8)}...</td>
+        <td>${d.institucion || '---'}</td>
+        <td>${d.activo ? '✅' : '❌'}</td>
+        <td>
+          <button class="btn-tester" onclick="toggleDestinatario(${d.id}, ${!d.activo})">${d.activo ? '🔕' : '🔔'}</button>
+          <button class="btn-tester btn-borrar" onclick="eliminarDestinatario(${d.id}, '${d.nombre}')">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error("Error cargando destinatarios:", error);
+  }
+}
+
+function mostrarFormDestinatario() {
+  document.getElementById('formDestinatario').classList.remove('hidden');
+}
+
+function ocultarFormDestinatario() {
+  document.getElementById('formDestinatario').classList.add('hidden');
+  document.getElementById('destNombre').value = '';
+  document.getElementById('destApikey').value = '';
+}
+
+async function guardarDestinatario() {
+  const nombre = document.getElementById('destNombre').value.trim();
+  const apikey = document.getElementById('destApikey').value.trim();
+  const institucion = document.getElementById('destInstitucion').value;
+
+  if (!nombre || !apikey) {
+    alert('⚠️ Complete todos los campos.');
+    return;
+  }
+
+  try {
+    const resp = await fetch(BACKEND_URL + '/api/destinatarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, apikey, institucion })
+    });
+
+    if (resp.ok) {
+      alert('✅ Destinatario agregado.');
+      ocultarFormDestinatario();
+      cargarDestinatarios();
+    } else {
+      alert('❌ Error al agregar destinatario.');
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert('❌ Error de conexión.');
+  }
+}
+
+async function toggleDestinatario(id, activo) {
+  try {
+    await fetch(BACKEND_URL + `/api/destinatarios/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activo })
+    });
+    cargarDestinatarios();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function eliminarDestinatario(id, nombre) {
+  if (!confirm(`¿Eliminar a ${nombre} de la lista de destinatarios?`)) return;
+
+  try {
+    await fetch(BACKEND_URL + `/api/destinatarios/${id}`, { method: 'DELETE' });
+    alert('✅ Destinatario eliminado.');
+    cargarDestinatarios();
+  } catch (error) {
+    console.error("Error:", error);
   }
 }
