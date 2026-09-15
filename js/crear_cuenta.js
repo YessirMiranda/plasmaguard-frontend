@@ -70,7 +70,7 @@ function validarFechaManual(fechaStr) {
   return edad >= 18;
 }
 // ==================== VALIDACIÓN DEL FORMULARIO ====================
-function validarFormulario(event) {
+async function validarFormulario(event) {
   event.preventDefault();
   let valido = true;
 
@@ -78,63 +78,55 @@ function validarFormulario(event) {
   document.querySelectorAll('.error-msg').forEach(el => el.innerText = '');
   document.getElementById('mensajeGeneral').innerText = '';
 
-  // Nombre
+  // ==================== VALIDACIONES ====================
   const nombre = document.getElementById('nombre').value.trim();
   if (!validarNombre(nombre)) {
     document.getElementById('errorNombre').innerText = 'Primera mayúscula, resto minúscula, solo letras (máx 30).';
     valido = false;
   }
 
-  // Apellido Paterno
   const apPaterno = document.getElementById('apellidoPaterno').value.trim();
   if (!validarNombre(apPaterno)) {
     document.getElementById('errorApellidoPaterno').innerText = 'Primera mayúscula, resto minúscula, solo letras (máx 30).';
     valido = false;
   }
 
-  // Apellido Materno
   const apMaterno = document.getElementById('apellidoMaterno').value.trim();
   if (!validarNombre(apMaterno)) {
     document.getElementById('errorApellidoMaterno').innerText = 'Primera mayúscula, resto minúscula, solo letras (máx 30).';
     valido = false;
   }
 
-  // Fecha de Nacimiento
   const fechaInput = document.getElementById('fechaNacimiento').value.trim();
   if (!validarFechaManual(fechaInput)) {
     document.getElementById('errorFecha').innerText = 'Formato DD/MM/AAAA. Debe ser mayor de 18 años.';
     valido = false;
   }
 
-  // CI
   const ci = document.getElementById('ci').value.trim();
   if (!validarCI(ci)) {
     document.getElementById('errorCI').innerText = 'Solo números y guiones (máx 12).';
     valido = false;
   }
 
-  // Password
   const password = document.getElementById('password').value;
   if (!validarPassword(password)) {
-    document.getElementById('errorPassword').innerText = 'Máx 10, con mayúscula, minúscula, número y especial.';
+    document.getElementById('errorPassword').innerText = 'Máx 20, con mayúscula, minúscula, número y especial.';
     valido = false;
   }
 
-  // Confirmar Password
   const confirmar = document.getElementById('confirmarPassword').value;
   if (password !== confirmar) {
     document.getElementById('errorConfirmar').innerText = 'Las contraseñas no coinciden.';
     valido = false;
   }
 
-  // Tipo de Usuario
   const tipo = document.getElementById('tipoUsuario').value;
   if (!tipo) {
     document.getElementById('errorTipo').innerText = 'Seleccione un tipo.';
     valido = false;
   }
 
-  // Código Técnico
   if (tipo === 'tecnico') {
     const codigo = document.getElementById('codigoTecnico').value.trim();
     if (codigo !== CLAVE_TECNICO) {
@@ -152,40 +144,68 @@ function validarFormulario(event) {
     }
   }
 
-  // Institución
-  if (!document.getElementById('institucion').value) {
+  const institucion = document.getElementById('institucion').value;
+  if (!institucion) {
     document.getElementById('errorInstitucion').innerText = 'Seleccione una institución.';
     valido = false;
   }
 
-  // Celular
   const celular = document.getElementById('celular').value.trim();
   if (!validarCelular(celular)) {
     document.getElementById('errorCelular').innerText = 'Solo números (máx 10).';
     valido = false;
   }
 
-  // Dirección
   const direccion = document.getElementById('direccion').value.trim();
   if (direccion.length > 50) {
     document.getElementById('errorDireccion').innerText = 'Máximo 50 caracteres.';
     valido = false;
   }
 
-  // Correo
   const correo = document.getElementById('correo').value.trim();
   if (!validarCorreo(correo)) {
     document.getElementById('errorCorreo').innerText = 'Debe ser un correo válido (Gmail, Hotmail, etc).';
     valido = false;
   }
 
-  // Si todo es válido
+  // ==================== SI TODO ES VÁLIDO ====================
   if (valido) {
-    document.getElementById('mensajeGeneral').style.color = '#4db8ff';
-    document.getElementById('mensajeGeneral').innerText = '✅ Usuario creado con éxito. Redirigiendo al inicio...';
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 2000);
+    try {
+      document.getElementById('mensajeGeneral').style.color = '#4db8ff';
+      document.getElementById('mensajeGeneral').innerText = '⏳ Creando usuario...';
+
+      const nombreCompleto = `${nombre} ${apPaterno} ${apMaterno}`;
+
+      const respuesta = await fetch('https://plasmaguard-backend.onrender.com/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usuario: ci,
+          password: password,
+          nombre: nombreCompleto,
+          rol: tipo,
+          institucion: institucion,
+          celular: celular,
+          correo: correo
+        })
+      });
+
+      if (respuesta.ok) {
+        document.getElementById('mensajeGeneral').style.color = '#4db8ff';
+        document.getElementById('mensajeGeneral').innerText = '✅ Usuario creado con éxito. Redirigiendo al inicio...';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 2000);
+      } else {
+        const error = await respuesta.json();
+        document.getElementById('mensajeGeneral').style.color = '#ff6b6b';
+        document.getElementById('mensajeGeneral').innerText = '❌ Error al crear usuario: ' + (error.detalle || error.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById('mensajeGeneral').style.color = '#ff6b6b';
+      document.getElementById('mensajeGeneral').innerText = '❌ Error de conexión. Revise la consola.';
+    }
   } else {
     document.getElementById('mensajeGeneral').style.color = '#ff6b6b';
     document.getElementById('mensajeGeneral').innerText = '❌ Corrija los errores antes de continuar.';
