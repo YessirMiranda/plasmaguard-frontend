@@ -65,7 +65,7 @@ function iniciarTimerBloqueo() {
 }
 
 // ==================== VALIDACIÓN DE LOGIN ====================
-function validarLogin(event) {
+async function validarLogin(event) {
   event.preventDefault();
   const usuario = document.getElementById('usuario').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -79,84 +79,83 @@ function validarLogin(event) {
     return false;
   }
 
-  // Usuarios simulados
-  const usuariosValidos = [
-    { user: '1234567', pass: 'Operador1!', rol: 'operador', nombre: 'Juan Pérez', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' },
-    { user: '7654321', pass: 'Tecnico1!', rol: 'tecnico', nombre: 'María López', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' },
-    { user: '10509091', pass: 'KiriKiri@1230', rol: 'admin', nombre: 'Yessir Miranda', institucion: 'Banco de Sangre de Referencia Departamental de Potosí' }
-  ];
+  try {
+    // Consultar usuarios desde Render
+    const respuesta = await fetch('https://plasmaguard-backend.onrender.com/api/usuarios');
+    const usuarios = await respuesta.json();
 
-  // Buscar si el usuario existe
-  const usuarioEncontrado = usuariosValidos.find(u => u.user === usuario);
+    // Buscar si el usuario existe
+    const usuarioEncontrado = usuarios.find(u => u.usuario === usuario);
 
-  if (!usuarioEncontrado) {
-    // Usuario NO existe
-    mensaje.style.color = '#ff6b6b';
-    mensaje.innerText = '❌ El usuario ingresado no existe.';
-    setTimeout(() => {
-      document.getElementById('usuario').value = '';
-      document.getElementById('password').value = '';
-      mensaje.innerText = '';
-    }, 2000);
-    return false;
-  }
-
-  // Usuario existe, verificar contraseña
-  if (usuarioEncontrado.pass !== password) {
-    // Contraseña incorrecta
-    let estado = obtenerEstadoBloqueo();
-    estado.intentos++;
-    
-    if (estado.intentos >= MAX_INTENTOS_PASSWORD) {
-      // Activar bloqueo
-      estado.nivelBloqueo++;
-      estado.timestamp = Date.now();
-      estado.intentos = 0;
-      guardarEstadoBloqueo(estado);
-      
+    if (!usuarioEncontrado) {
       mensaje.style.color = '#ff6b6b';
-      mensaje.innerText = '🚫 No intente ingresar como usuario si no pertenece al personal del banco de sangre.';
-      
-      iniciarTimerBloqueo();
-      document.getElementById('password').value = '';
-      return false;
-    } else {
-      guardarEstadoBloqueo(estado);
-      mensaje.style.color = '#ffaa00';
-      mensaje.innerText = `⚠️ Usuario encontrado, contraseña incorrecta. Intento ${estado.intentos}/${MAX_INTENTOS_PASSWORD}.`;
-      document.getElementById('password').value = '';
+      mensaje.innerText = '❌ El usuario ingresado no existe.';
+      setTimeout(() => {
+        document.getElementById('usuario').value = '';
+        document.getElementById('password').value = '';
+        mensaje.innerText = '';
+      }, 2000);
       return false;
     }
-  }
+
+    // Verificar contraseña
+    if (usuarioEncontrado.password !== password) {
+      let estado = obtenerEstadoBloqueo();
+      estado.intentos++;
+
+      if (estado.intentos >= MAX_INTENTOS_PASSWORD) {
+        estado.nivelBloqueo++;
+        estado.timestamp = Date.now();
+        estado.intentos = 0;
+        guardarEstadoBloqueo(estado);
+
+        mensaje.style.color = '#ff6b6b';
+        mensaje.innerText = '🚫 No intente ingresar como usuario si no pertenece al personal del banco de sangre.';
+
+        iniciarTimerBloqueo();
+        document.getElementById('password').value = '';
+        return false;
+      } else {
+        guardarEstadoBloqueo(estado);
+        mensaje.style.color = '#ffaa00';
+        mensaje.innerText = `⚠️ Usuario encontrado, contraseña incorrecta. Intento ${estado.intentos}/${MAX_INTENTOS_PASSWORD}.`;
+        document.getElementById('password').value = '';
+        return false;
+      }
+    }
 
     // Login exitoso
     limpiarEstadoBloqueo();
     mensaje.style.color = '#4db8ff';
     mensaje.innerText = '✅ Bienvenido, ' + usuarioEncontrado.nombre + '. Redirigiendo...';
 
-    // Guardar sesión
     sessionStorage.setItem('plasmaguard_sesion', JSON.stringify({
-      usuario: usuarioEncontrado.user,
+      usuario: usuarioEncontrado.usuario,
       nombre: usuarioEncontrado.nombre,
       rol: usuarioEncontrado.rol,
       institucion: usuarioEncontrado.institucion || 'Banco de Sangre de Referencia Departamental de Potosí'
     }));
 
-    // Redirigir según el rol
     setTimeout(() => {
       if (usuarioEncontrado.rol === 'operador') {
         window.location.href = 'operador.html';
       } else if (usuarioEncontrado.rol === 'tecnico') {
-        sessionStorage.setItem('tecnico_pendiente', usuarioEncontrado.user);
+        sessionStorage.setItem('tecnico_pendiente', usuarioEncontrado.usuario);
         window.location.href = 'verificacion_tecnico.html';
       } else if (usuarioEncontrado.rol === 'admin') {
-        sessionStorage.setItem('admin_pendiente', usuarioEncontrado.user);
+        sessionStorage.setItem('admin_pendiente', usuarioEncontrado.usuario);
         window.location.href = 'verificacion_admin.html';
       }
     }, 1000);
 
     return false;
+  } catch (error) {
+    console.error("Error en login:", error);
+    mensaje.style.color = '#ff6b6b';
+    mensaje.innerText = '❌ Error de conexión. Revise la consola.';
+    return false;
   }
+}
 
 // ==================== NAVEGACIÓN ====================
 function irACrearCuenta() {
