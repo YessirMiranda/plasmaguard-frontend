@@ -63,6 +63,7 @@
     <button class="tab-btn" onclick="cambiarTab('auditoria', this)">📋 Auditoría</button>
     <button class="tab-btn" onclick="cambiarTab('notificaciones-config', this)">📲 Notificaciones</button>
     <button class="tab-btn" onclick="cambiarTab('wifi', this)">📶 WiFi</button>
+    <button class="tab-btn" onclick="cambiarTab('destinatarios', this)">👥 Destinatarios</button>
   </nav>
 
   <main class="dashboard-content">
@@ -336,6 +337,58 @@
         </div>
     
         <button class="btn-generar" onclick="guardarWiFi()">💾 Guardar y Reconectar</button>
+      </div>
+    </section>
+
+    <section id="tab-destinatarios" class="tab-content">
+      <h2>Destinatarios de Notificaciones</h2>
+  
+      <div class="filtros-container">
+        <button class="btn-filtrar btn-crear" onclick="mostrarFormDestinatario()">➕ Agregar Destinatario</button>
+        <button class="btn-filtrar" onclick="cargarDestinatarios()">🔄 Actualizar</button>
+      </div>
+
+  <!-- Formulario (oculto por defecto) -->
+      <div id="formDestinatario" class="form-container-small hidden" style="max-width: 600px; margin: 20px auto;">
+        <h3 style="color: #4db8ff;">Nuevo Destinatario</h3>
+        <div class="form-group">
+          <label for="destNombre">Nombre</label>
+          <input type="text" id="destNombre" placeholder="Ej: Dra. Rocío Marín">
+        </div>
+        <div class="form-group">
+          <label for="destApikey">API Key de CallMeBot</label>
+          <input type="text" id="destApikey" placeholder="Ej: 0pzum1DG9MU9jNtS">
+        </div>
+        <div class="form-group">
+          <label for="destInstitucion">Institución</label>
+          <select id="destInstitucion">
+            <option value="potosi">Banco de Sangre de Potosí</option>
+            <option value="cochabamba">Banco de Sangre de Cochabamba</option>
+          </select>
+        </div>
+        <div class="form-buttons">
+          <button class="btn-volver" onclick="ocultarFormDestinatario()">Cancelar</button>
+          <button class="btn-crear" onclick="guardarDestinatario()">Guardar</button>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="tabla-container">
+        <table id="tablaDestinatarios">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>API Key</th>
+              <th>Institución</th>
+              <th>Activo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Cargando...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
     
