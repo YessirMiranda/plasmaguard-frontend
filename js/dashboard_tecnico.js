@@ -6,23 +6,27 @@ let modoPruebasActivo = false;
 // ==================== VERIFICAR SESIÓN ====================
 const sesion = verificarSesion('tecnico');
 
+// CAMBIO: determinar la sede del técnico
+const SEDE_TECNICO = (sesion && sesion.institucion) ? sesion.institucion.toUpperCase() : 'POTOSI';
+
 // ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', () => {
   try {
     if (sesion) {
-      document.getElementById('bienvenida').innerText = `Bienvenido, ${sesion.nombre} (Técnico)`;
+      document.getElementById('bienvenida').innerText = `Bienvenido, ${sesion.nombre} (Técnico - ${SEDE_TECNICO})`;
     }
 
     cargarGraficaVoltaje();
     setInterval(cargarGraficaVoltaje, 60000); // Actualizar cada minuto
-    
+
     cargarDatos();
     setInterval(cargarDatos, 10000);
 
     cargarNotificaciones();
     setInterval(cargarNotificaciones, 30000);
 
-    cargarNotificacionesHistorial();
+    // CAMBIO: ya NO se llama cargarNotificacionesHistorial() al inicio
+    // (antes saltaba un alert pidiendo fechas al cargar la página)
   } catch (error) {
     console.error("Error en inicialización:", error);
   }
@@ -49,7 +53,8 @@ function toggleNotificaciones() {
 
 async function cargarNotificaciones() {
   try {
-    const respUltimo = await fetch(BACKEND_URL + "/api/ultimo");
+    // CAMBIO: filtrar por sede del técnico
+    const respUltimo = await fetch(`${BACKEND_URL}/api/ultimo?dispositivo_id=${SEDE_TECNICO}`);
     const datosUltimo = await respUltimo.json();
 
     const notificaciones = [];
@@ -100,31 +105,32 @@ async function cargarNotificaciones() {
 // ==================== CARGA DE DATOS ====================
 async function cargarDatos() {
   try {
-    const respuesta = await fetch(BACKEND_URL + "/api/ultimo");
+    // CAMBIO: filtrar por sede del técnico
+    const respuesta = await fetch(`${BACKEND_URL}/api/ultimo?dispositivo_id=${SEDE_TECNICO}`);
     const datos = await respuesta.json();
-    
+
     if (datos.length > 0) {
       const ultimo = datos[0];
-      
+
       // Verificar si el dispositivo está activo
       const ultimoRegistro = new Date(ultimo.created_at).getTime();
       const ahora = Date.now();
       const diferenciaMinutos = (ahora - ultimoRegistro) / 60000;
-      
+
       if (diferenciaMinutos > 2) {
         // Dispositivo apagado
         document.getElementById('bannerEstado').className = 'banner-estado alerta';
         document.getElementById('bannerIcono').innerText = '🔌';
-        document.getElementById('bannerMensaje').innerText = 'Dispositivo apagado o sin conexión (último dato hace ' + Math.round(diferenciaMinutos) + ' minutos).';
-        
+        document.getElementById('bannerMensaje').innerText = `Dispositivo ${SEDE_TECNICO} apagado o sin conexión (último dato hace ${Math.round(diferenciaMinutos)} minutos).`;
+
         // Mostrar "Dispositivo apagado" en las tarjetas
         document.querySelectorAll('.card .valor').forEach(el => el.innerText = '---');
         document.querySelectorAll('.card .estado').forEach(el => el.innerText = 'Dispositivo apagado');
         document.querySelectorAll('.card').forEach(el => el.className = 'card');
-        
+
         return;
       }
-      
+
       // Dispositivo activo: actualizar normalmente
       actualizarTarjetas(ultimo);
       actualizarBannerEstado(ultimo);
@@ -217,7 +223,8 @@ async function cargarNotificacionesHistorial() {
     const inicioISO = inicio + ':00';
     const finISO = fin + ':00';
 
-    const url = `${BACKEND_URL}/api/fallas?inicio=${inicioISO}&fin=${finISO}`;
+    // CAMBIO: filtrar por sede
+    const url = `${BACKEND_URL}/api/fallas?inicio=${inicioISO}&fin=${finISO}&dispositivo_id=${SEDE_TECNICO}`;
     const respuesta = await fetch(url);
     const fallas = await respuesta.json();
 
@@ -231,8 +238,9 @@ async function cargarNotificacionesHistorial() {
 
     fallas.forEach(f => {
       const tr = document.createElement('tr');
-      const inicioStr = new Date(f.inicio).toLocaleString('es-BO');
-      const finStr = new Date(f.fin).toLocaleString('es-BO');
+      // CAMBIO: usar formatearFechaBolivia
+      const inicioStr = formatearFechaBolivia(f.inicio);
+      const finStr = formatearFechaBolivia(f.fin);
       const duracion = f.duracion ? `${Math.round(f.duracion / 60)} min` : '---';
 
       tr.innerHTML = `
@@ -252,12 +260,23 @@ async function cargarNotificacionesHistorial() {
 }
 
 async function borrarNotificaciones() {
-  if (!confirm('¿Está seguro de que desea borrar TODAS las notificaciones? Esta acción no se puede deshacer.')) {
+  // CAMBIO: ahora pide fechas para no fallar con el backend que las exige
+  const inicio = document.getElementById('notifInicio').value;
+  const fin = document.getElementById('notifFin').value;
+
+  if (!inicio || !fin) {
+    alert('Seleccione fecha y hora de inicio y fin antes de borrar.');
+    return;
+  }
+
+  if (!confirm('¿Está seguro de que desea borrar las notificaciones del rango seleccionado? Esta acción no se puede deshacer.')) {
     return;
   }
 
   try {
-    const respuesta = await fetch(BACKEND_URL + '/api/fallas/borrar', {
+    const inicioISO = inicio + ':00';
+    const finISO = fin + ':00';
+    const respuesta = await fetch(`${BACKEND_URL}/api/fallas/borrar?inicio=${inicioISO}&fin=${finISO}`, {
       method: 'DELETE'
     });
 
@@ -265,7 +284,7 @@ async function borrarNotificaciones() {
 
     if (respuesta.ok) {
       alert('✅ Notificaciones borradas correctamente.');
-      cargarNotificacionesHistorial(); // Recargar la tabla
+      cargarNotificacionesHistorial();
     } else {
       alert('❌ Error al borrar las notificaciones: ' + (datos.error || 'Error desconocido'));
     }
@@ -285,10 +304,11 @@ async function activarModoPruebas() {
   document.getElementById('bannerModoPruebas').classList.remove('hidden');
 
   try {
+    // CAMBIO: incluir dispositivo_id
     await fetch(BACKEND_URL + '/api/comando', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comando: 'modo_pruebas' })
+      body: JSON.stringify({ comando: 'modo_pruebas', dispositivo_id: SEDE_TECNICO })
     });
     alert('✅ Modo Pruebas activado. El ESP32 dejará de leer sensores.');
   } catch (error) {
@@ -301,10 +321,11 @@ async function salirModoPruebas() {
   document.getElementById('bannerModoPruebas').classList.add('hidden');
 
   try {
+    // CAMBIO: incluir dispositivo_id
     await fetch(BACKEND_URL + '/api/comando', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comando: 'modo_normal' })
+      body: JSON.stringify({ comando: 'modo_normal', dispositivo_id: SEDE_TECNICO })
     });
     alert('✅ Modo Normal restaurado.');
   } catch (error) {
@@ -319,10 +340,11 @@ async function enviarComandoTester(comando, valor) {
   }
 
   try {
+    // CAMBIO: incluir dispositivo_id
     await fetch(BACKEND_URL + '/api/comando', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comando: comando, valor: valor || null })
+      body: JSON.stringify({ comando: comando, valor: valor || null, dispositivo_id: SEDE_TECNICO })
     });
   } catch (error) {
     console.error("Error enviando comando:", error);
@@ -405,6 +427,7 @@ function generarDocumentoFalla() {
 
   doc.text(`Fecha: ${fechaEmision}`, 15, y); y += 7;
   doc.text(`Técnico: ${nombreUsuario}`, 15, y); y += 7;
+  doc.text(`Sede: ${SEDE_TECNICO}`, 15, y); y += 7;
   doc.text(`Tipo de Falla: ${tipo}`, 15, y); y += 10;
 
   doc.setFontSize(12);
@@ -487,12 +510,12 @@ function verManualEnPagina() {
   }
 }
 
+// (Se mantiene la función duplicada, tal como en el original, para no romper nada)
 function verManualEnPagina() {
   const visor = document.getElementById('visorManual');
   const iframe = document.getElementById('iframeManual');
 
   if (visor.classList.contains('hidden')) {
-    // URL del manual
     iframe.src = 'https://pwfkckrafympdltinjdo.supabase.co/storage/v1/object/public/manuales/User_Manual_LINEA_ESSE_ed.ES.pdf';
     visor.classList.remove('hidden');
   } else {
@@ -513,7 +536,8 @@ async function cargarGraficaVoltaje() {
     const fin = new Date().toISOString();
     const inicio = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // Últimas 24h
 
-    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicio}&fin=${fin}&intervalo=3600`;
+    // CAMBIO: agregar dispositivo_id
+    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicio}&fin=${fin}&intervalo=3600&dispositivo_id=${SEDE_TECNICO}`;
     const respuesta = await fetch(url);
     const datos = await respuesta.json();
 
@@ -523,7 +547,8 @@ async function cargarGraficaVoltaje() {
 
     if (graficaVoltaje) graficaVoltaje.destroy();
 
-    const etiquetas = datos.map(d => new Date(d.created_at).toLocaleString('es-BO'));
+    // CAMBIO: usar formatearFechaBolivia
+    const etiquetas = datos.map(d => formatearFechaBolivia(d.created_at));
     const voltajes = datos.map(d => d.voltaje_bateria);
 
     graficaVoltaje = new Chart(ctx, {
