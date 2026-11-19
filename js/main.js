@@ -1,7 +1,6 @@
 // ==================== CONFIGURACIÓN ====================
 const MAX_INTENTOS_PASSWORD = 3;
 const TIEMPOS_BLOQUEO = [10000, 60000, 300000]; // 10s, 1min, 5min
-const CLAVE_TECNICO = "TECNICO2026"; // Código fijo para técnicos (luego se valida en backend)
 
 // ==================== MENÚ DESPLEGABLE ====================
 function toggleMenu(elemento) {
@@ -14,9 +13,7 @@ function toggleMenu(elemento) {
 // ==================== GESTIÓN DE INTENTOS Y BLOQUEO ====================
 function obtenerEstadoBloqueo() {
   const datos = localStorage.getItem('plasmaguard_bloqueo');
-  if (!datos) {
-    return { intentos: 0, nivelBloqueo: 0, timestamp: 0 };
-  }
+  if (!datos) return { intentos: 0, nivelBloqueo: 0, timestamp: 0 };
   return JSON.parse(datos);
 }
 
@@ -33,12 +30,10 @@ function verificarBloqueoActivo() {
   if (estado.nivelBloqueo > 0 && estado.timestamp > 0) {
     const tiempoTranscurrido = Date.now() - estado.timestamp;
     const tiempoBloqueo = TIEMPOS_BLOQUEO[Math.min(estado.nivelBloqueo - 1, TIEMPOS_BLOQUEO.length - 1)];
-    
     if (tiempoTranscurrido < tiempoBloqueo) {
       const restante = Math.ceil((tiempoBloqueo - tiempoTranscurrido) / 1000);
       return { activo: true, restante: restante };
     } else {
-      // El bloqueo expiró, pero mantenemos el nivel para el próximo fallo
       estado.timestamp = 0;
       guardarEstadoBloqueo(estado);
       return { activo: false, restante: 0 };
@@ -50,7 +45,6 @@ function verificarBloqueoActivo() {
 function iniciarTimerBloqueo() {
   const timerDiv = document.getElementById('timerBloqueo');
   const btnIngresar = document.getElementById('btnIngresar');
-  
   const intervalo = setInterval(() => {
     const bloqueo = verificarBloqueoActivo();
     if (bloqueo.activo) {
@@ -71,7 +65,7 @@ async function validarLogin(event) {
   const password = document.getElementById('password').value.trim();
   const mensaje = document.getElementById('mensajeError');
 
-  // Verificar si hay bloqueo activo
+  // Verificar bloqueo local
   const bloqueo = verificarBloqueoActivo();
   if (bloqueo.activo) {
     mensaje.style.color = '#ffaa00';
@@ -80,26 +74,16 @@ async function validarLogin(event) {
   }
 
   try {
-    // Consultar usuarios desde Render
-    const respuesta = await fetch('https://plasmaguard-backend.onrender.com/api/usuarios');
-    const usuarios = await respuesta.json();
+    const respuesta = await fetch('https://plasmaguard-backend.onrender.com/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario, password })
+    });
 
-    // Buscar si el usuario existe
-    const usuarioEncontrado = usuarios.find(u => u.usuario === usuario);
+    const data = await respuesta.json();
 
-    if (!usuarioEncontrado) {
-      mensaje.style.color = '#ff6b6b';
-      mensaje.innerText = '❌ El usuario ingresado no existe.';
-      setTimeout(() => {
-        document.getElementById('usuario').value = '';
-        document.getElementById('password').value = '';
-        mensaje.innerText = '';
-      }, 2000);
-      return false;
-    }
-
-    // Verificar contraseña
-    if (usuarioEncontrado.password !== password) {
+    // Login fallido
+    if (!respuesta.ok) {
       let estado = obtenerEstadoBloqueo();
       estado.intentos++;
 
@@ -108,17 +92,15 @@ async function validarLogin(event) {
         estado.timestamp = Date.now();
         estado.intentos = 0;
         guardarEstadoBloqueo(estado);
-
         mensaje.style.color = '#ff6b6b';
-        mensaje.innerText = '🚫 No intente ingresar como usuario si no pertenece al personal del banco de sangre.';
-
+        mensaje.innerText = '🚫 Demasiados intentos. Cuenta bloqueada temporalmente.';
         iniciarTimerBloqueo();
         document.getElementById('password').value = '';
         return false;
       } else {
         guardarEstadoBloqueo(estado);
         mensaje.style.color = '#ffaa00';
-        mensaje.innerText = `⚠️ Usuario encontrado, contraseña incorrecta. Intento ${estado.intentos}/${MAX_INTENTOS_PASSWORD}.`;
+        mensaje.innerText = `⚠️ ${data.error || 'Usuario o contraseña incorrectos'}. Intento ${estado.intentos}/${MAX_INTENTOS_PASSWORD}.`;
         document.getElementById('password').value = '';
         return false;
       }
@@ -127,24 +109,27 @@ async function validarLogin(event) {
     // Login exitoso
     limpiarEstadoBloqueo();
     mensaje.style.color = '#4db8ff';
-    mensaje.innerText = '✅ Bienvenido, ' + usuarioEncontrado.nombre + '. Redirigiendo...';
+    mensaje.innerText = '✅ Bienvenido, ' + data.nombre + '. Redirigiendo...';
 
     sessionStorage.setItem('plasmaguard_sesion', JSON.stringify({
-      usuario: usuarioEncontrado.usuario,
-      nombre: usuarioEncontrado.nombre,
-      rol: usuarioEncontrado.rol,
-      institucion: usuarioEncontrado.institucion || 'Banco de Sangre de Referencia Departamental de Potosí'
+      usuario: data.usuario,
+      nombre: data.nombre,
+      rol: data.rol,
+      institucion: data.institucion || 'potosi'
     }));
 
     setTimeout(() => {
-      if (usuarioEncontrado.rol === 'operador') {
+      if (data.rol === 'operador') {
         window.location.href = 'operador.html';
-      } else if (usuarioEncontrado.rol === 'tecnico') {
-        sessionStorage.setItem('tecnico_pendiente', usuarioEncontrado.usuario);
+      } else if (data.rol === 'tecnico') {
+        sessionStorage.setItem('tecnico_pendiente', data.usuario);
         window.location.href = 'verificacion_tecnico.html';
-      } else if (usuarioEncontrado.rol === 'admin') {
-        sessionStorage.setItem('admin_pendiente', usuarioEncontrado.usuario);
+      } else if (data.rol === 'admin') {
+        sessionStorage.setItem('admin_pendiente', data.usuario);
         window.location.href = 'verificacion_admin.html';
+      } else {
+        mensaje.style.color = '#ff6b6b';
+        mensaje.innerText = '❌ Rol no reconocido. Contacte al administrador.';
       }
     }, 1000);
 
