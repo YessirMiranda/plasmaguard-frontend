@@ -2,6 +2,7 @@
 const BACKEND_URL = "https://plasmaguard-backend.onrender.com";
 let graficaTemperaturasAdmin = null;
 let modoPruebasActivo = false;
+let sedeSeleccionada = "POTOSI"; // CAMBIO: sede activa
 
 // ==================== VERIFICAR SESIÓN ====================
 const sesion = verificarSesion('admin');
@@ -11,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sesion) {
     document.getElementById('bienvenida').innerText = `Bienvenido, ${sesion.nombre} (Administrador)`;
   }
+
+  // CAMBIO: agregar selector de sede dinámicamente si no existe
+  agregarSelectorSede();
 
   cargarDatos();
   setInterval(cargarDatos, 10000);
@@ -24,6 +28,36 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarAuditoria();
   cargarDestinatarios();
 });
+
+// CAMBIO: función que agrega el <select> de sede en el header
+function agregarSelectorSede() {
+  const headerRight = document.querySelector('.header-right');
+  if (!headerRight) return;
+  if (document.getElementById('selectorSede')) return; // ya existe
+  const selector = document.createElement('select');
+  selector.id = 'selectorSede';
+  selector.className = 'selector-sede';
+  selector.innerHTML = `
+    <option value="POTOSI">Potosí</option>
+    <option value="COCHABAMBA">Cochabamba</option>
+    <option value="AMBOS" selected>Ambos</option>
+  `;
+  selector.onchange = () => {
+    sedeSeleccionada = selector.value;
+    cargarDatos();
+    cargarNotificaciones();
+    cargarGraficaTemperaturas();
+  };
+  headerRight.insertBefore(selector, headerRight.firstChild);
+  sedeSeleccionada = "AMBOS";
+}
+
+// CAMBIO: helper para construir la URL según la sede seleccionada
+function urlConSede(baseUrl) {
+  const sep = baseUrl.includes('?') ? '&' : '?';
+  if (sedeSeleccionada === "AMBOS") return baseUrl;
+  return `${baseUrl}${sep}dispositivo_id=${sedeSeleccionada}`;
+}
 
 // ==================== CAMBIO DE PESTAÑAS ====================
 function cambiarTab(nombreTab, boton) {
@@ -40,21 +74,25 @@ function toggleNotificaciones() {
 
 async function cargarNotificaciones() {
   try {
-    const resp = await fetch(BACKEND_URL + "/api/ultimo");
+    const resp = await fetch(BACKEND_URL + "/api/ultimos");
     const datos = await resp.json();
     const notificaciones = [];
 
-    if (datos.length > 0) {
-      const d = datos[0];
-      if (d.sensor_1 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 1 desconectado' });
-      if (d.sensor_2 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 2 desconectado' });
-      if (d.sensor_3 === -127) notificaciones.push({ tipo: 'alerta', mensaje: '⚠️ Sensor 3 desconectado' });
-      if (!d.estado_ac) notificaciones.push({ tipo: 'alerta', mensaje: '⚡ Apagón detectado' });
-      if (!d.router_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '📡 Router cortado' });
-      if (!d.internet_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '🌐 Sin internet' });
-      if (d.voltaje_bateria <= 11.0) notificaciones.push({ tipo: 'advertencia', mensaje: '🔋 Batería baja' });
-      if (!d.sd_detectada) notificaciones.push({ tipo: 'advertencia', mensaje: '💾 MicroSD no detectada' });
-    }
+    // CAMBIO: /api/ultimos devuelve { POTOSI: {...}, COCHABAMBA: {...} }
+    const sedes = (sedeSeleccionada === "AMBOS") ? ['POTOSI', 'COCHABAMBA'] : [sedeSeleccionada];
+    sedes.forEach(sede => {
+      const d = datos[sede];
+      if (!d) return;
+      const prefijo = `[${sede}] `;
+      if (d.sensor_1 === -127) notificaciones.push({ tipo: 'alerta', mensaje: prefijo + '⚠️ Sensor 1 desconectado' });
+      if (d.sensor_2 === -127) notificaciones.push({ tipo: 'alerta', mensaje: prefijo + '⚠️ Sensor 2 desconectado' });
+      if (d.sensor_3 === -127) notificaciones.push({ tipo: 'alerta', mensaje: prefijo + '⚠️ Sensor 3 desconectado' });
+      if (!d.estado_ac) notificaciones.push({ tipo: 'alerta', mensaje: prefijo + '⚡ Apagón detectado' });
+      if (!d.router_activo) notificaciones.push({ tipo: 'advertencia', mensaje: prefijo + '📡 Router cortado' });
+      if (!d.internet_activo) notificaciones.push({ tipo: 'advertencia', mensaje: prefijo + '🌐 Sin internet' });
+      if (d.voltaje_bateria <= 11.0) notificaciones.push({ tipo: 'advertencia', mensaje: prefijo + '🔋 Batería baja' });
+      if (!d.sd_detectada) notificaciones.push({ tipo: 'advertencia', mensaje: prefijo + '💾 MicroSD no detectada' });
+    });
 
     const contador = document.getElementById('contadorNotif');
     const lista = document.getElementById('listaNotificaciones');
@@ -76,32 +114,44 @@ async function cargarNotificaciones() {
 // ==================== CARGA DE DATOS ====================
 async function cargarDatos() {
   try {
-    const respuesta = await fetch(BACKEND_URL + "/api/ultimo");
+    // CAMBIO: si es AMBOS, usar /api/ultimos; si es una sede, /api/ultimo?dispositivo_id=
+    if (sedeSeleccionada === "AMBOS") {
+      const resp = await fetch(BACKEND_URL + "/api/ultimos");
+      const datos = await resp.json();
+      const potosi = datos.POTOSI;
+      const cochabamba = datos.COCHABAMBA;
+      // Mostrar el más reciente de los dos en las tarjetas
+      const masReciente = [potosi, cochabamba]
+        .filter(x => x)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      if (masReciente) {
+        actualizarTarjetas(masReciente);
+        actualizarBannerEstado(masReciente);
+      }
+      return;
+    }
+
+    const url = `${BACKEND_URL}/api/ultimo?dispositivo_id=${sedeSeleccionada}`;
+    const respuesta = await fetch(url);
     const datos = await respuesta.json();
     
     if (datos.length > 0) {
       const ultimo = datos[0];
       
-      // Verificar si el dispositivo está activo
       const ultimoRegistro = new Date(ultimo.created_at).getTime();
       const ahora = Date.now();
       const diferenciaMinutos = (ahora - ultimoRegistro) / 60000;
       
       if (diferenciaMinutos > 2) {
-        // Dispositivo apagado
         document.getElementById('bannerEstado').className = 'banner-estado alerta';
         document.getElementById('bannerIcono').innerText = '🔌';
         document.getElementById('bannerMensaje').innerText = 'Dispositivo apagado o sin conexión (último dato hace ' + Math.round(diferenciaMinutos) + ' minutos).';
-        
-        // Mostrar "Dispositivo apagado" en las tarjetas
         document.querySelectorAll('.card .valor').forEach(el => el.innerText = '---');
         document.querySelectorAll('.card .estado').forEach(el => el.innerText = 'Dispositivo apagado');
         document.querySelectorAll('.card').forEach(el => el.className = 'card');
-        
         return;
       }
       
-      // Dispositivo activo: actualizar normalmente
       actualizarTarjetas(ultimo);
       actualizarBannerEstado(ultimo);
     }
@@ -180,13 +230,16 @@ async function cargarPanelGlobal() {
     const usuarios = await respU.json();
     document.getElementById('totalUsuarios').innerText = usuarios.length;
 
-    const respR = await fetch(BACKEND_URL + "/api/ultimo");
+    const respR = await fetch(BACKEND_URL + "/api/ultimos");
     const registros = await respR.json();
-    if (registros.length > 0) {
-      document.getElementById('ultimaSync').innerText = new Date(registros[0].created_at).toLocaleString('es-BO');
+    const masReciente = [registros.POTOSI, registros.COCHABAMBA]
+      .filter(x => x)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    if (masReciente) {
+      // CAMBIO: usar formatearFechaBolivia
+      document.getElementById('ultimaSync').innerText = formatearFechaBolivia(masReciente.created_at);
     }
 
-    // Simulación de espacio usado (se puede obtener de Supabase)
     document.getElementById('totalRegistros').innerText = '---';
     document.getElementById('espacioUsado').innerText = '---';
   } catch (error) {
@@ -204,7 +257,11 @@ async function cargarGraficaTemperaturas() {
     const inicio = new Date(Date.now() - periodo * 60 * 60 * 1000).toISOString();
     const intervalo = Math.floor((periodo * 3600) / 100);
 
-    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicio}&fin=${fin}&intervalo=${intervalo}`;
+    // CAMBIO: agregar dispositivo_id si no es AMBOS
+    let url = `${BACKEND_URL}/api/temperaturas?inicio=${inicio}&fin=${fin}&intervalo=${intervalo}`;
+    if (sedeSeleccionada !== "AMBOS") {
+      url += `&dispositivo_id=${sedeSeleccionada}`;
+    }
     const resp = await fetch(url);
     const datos = await resp.json();
 
@@ -213,7 +270,8 @@ async function cargarGraficaTemperaturas() {
     const ctx = document.getElementById('graficaTemperaturasAdmin').getContext('2d');
     if (graficaTemperaturasAdmin) graficaTemperaturasAdmin.destroy();
 
-    const etiquetas = datos.map(d => new Date(d.created_at).toLocaleString('es-BO'));
+    // CAMBIO: formatearFechaBolivia en lugar de toLocaleString
+    const etiquetas = datos.map(d => formatearFechaBolivia(d.created_at));
     const datasets = [];
 
     if (sensor === 'todos' || sensor === '1') {
@@ -294,10 +352,17 @@ async function probarRele(estado) {
 
 async function enviarComando(comando, valor) {
   try {
+    // CAMBIO: agregar dispositivo_id según sede seleccionada
+    const body = { comando, valor: valor || null };
+    if (sedeSeleccionada !== "AMBOS") {
+      body.dispositivo_id = sedeSeleccionada;
+    } else {
+      body.dispositivo_id = 'POTOSI'; // default si es AMBOS
+    }
     await fetch(BACKEND_URL + '/api/comando', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comando, valor: valor || null })
+      body: JSON.stringify(body)
     });
   } catch (error) {
     console.error("Error enviando comando:", error);
@@ -359,21 +424,13 @@ function editarUsuario(id) {
 
 function eliminarUsuario(id, usuario) {
   if (!confirm(`¿Eliminar al usuario ${usuario}? Esta acción borrará TODOS sus datos.`)) return;
-  
   const confirmacion = prompt(`Escriba "ELIMINAR" para confirmar el borrado de ${usuario}:`);
-  if (confirmacion !== 'ELIMINAR') {
-    alert('Borrado cancelado.');
-    return;
-  }
+  if (confirmacion !== 'ELIMINAR') { alert('Borrado cancelado.'); return; }
 
   fetch(BACKEND_URL + `/api/usuarios/${id}`, { method: 'DELETE' })
     .then(resp => {
-      if (resp.ok) {
-        alert('✅ Usuario eliminado.');
-        cargarUsuarios();
-      } else {
-        alert('❌ Error al eliminar.');
-      }
+      if (resp.ok) { alert('✅ Usuario eliminado.'); cargarUsuarios(); }
+      else { alert('❌ Error al eliminar.'); }
     })
     .catch(err => console.error(err));
 }
@@ -386,13 +443,13 @@ function crearUsuarioAdmin() {
 async function cargarDatosAdmin() {
   const inicio = document.getElementById('adminDataInicio').value;
   const fin = document.getElementById('adminDataFin').value;
-
   if (!inicio || !fin) { alert('Seleccione fechas.'); return; }
 
   try {
     const inicioISO = inicio + ':00';
     const finISO = fin + ':00';
-    const url = `${BACKEND_URL}/api/temperaturas?inicio=${inicioISO}&fin=${finISO}&intervalo=60`;
+    let url = `${BACKEND_URL}/api/temperaturas?inicio=${inicioISO}&fin=${finISO}&intervalo=60`;
+    if (sedeSeleccionada !== "AMBOS") url += `&dispositivo_id=${sedeSeleccionada}`;
     const resp = await fetch(url);
     const datos = await resp.json();
 
@@ -408,7 +465,7 @@ async function cargarDatosAdmin() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${d.id}</td>
-        <td>${new Date(d.created_at).toLocaleString('es-BO')}</td>
+        <td>${formatearFechaBolivia(d.created_at)}</td>
         <td>${d.sensor_1 === -127 ? '---' : d.sensor_1.toFixed(1)}</td>
         <td>${d.sensor_2 === -127 ? '---' : d.sensor_2.toFixed(1)}</td>
         <td>${d.sensor_3 === -127 ? '---' : d.sensor_3.toFixed(1)}</td>
@@ -470,7 +527,7 @@ async function cargarAuditoria() {
     registros.forEach(r => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${new Date(r.created_at).toLocaleString('es-BO')}</td>
+        <td>${formatearFechaBolivia(r.created_at)}</td>
         <td>${r.usuario}</td>
         <td>${r.accion}</td>
         <td>${r.detalles || '---'}</td>
@@ -506,8 +563,8 @@ async function cargarNotificacionesHistorial() {
     fallas.forEach(f => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${new Date(f.inicio).toLocaleString('es-BO')}</td>
-        <td>${new Date(f.fin).toLocaleString('es-BO')}</td>
+        <td>${formatearFechaBolivia(f.inicio)}</td>
+        <td>${formatearFechaBolivia(f.fin)}</td>
         <td>${f.tipo}</td>
         <td>${f.detalle}</td>
         <td>${f.duracion ? Math.round(f.duracion/60) + ' min' : '---'}</td>
@@ -574,7 +631,7 @@ async function cargarConfigNotificaciones() {
 
 async function guardarConfigNotificaciones() {
   const activas = document.getElementById('notifActivas').checked;
-  const apiKey = document.getElementById('notifApiKey').value.trim(); // <-- .trim() elimina espacios
+  const apiKey = document.getElementById('notifApiKey').value.trim();
 
   if (!apiKey) {
     alert('⚠️ Ingrese una API Key válida.');
@@ -612,7 +669,7 @@ async function guardarWiFi() {
     await fetch(BACKEND_URL + '/api/comando/wifi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ssid1, pass1, ssid2, pass2 })
+      body: JSON.stringify({ ssid1, pass1, ssid2, pass2, dispositivo_id: sedeSeleccionada === "AMBOS" ? "POTOSI" : sedeSeleccionada })
     });
     alert('✅ Comando enviado. El ESP32 se reconectará en breve.');
   } catch (error) {
