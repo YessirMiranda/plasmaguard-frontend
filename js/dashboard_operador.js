@@ -39,7 +39,6 @@ function toggleNotificaciones() {
 
 async function cargarNotificaciones() {
   try {
-    // CAMBIO: filtrar por sede del operador
     const respUltimo = await fetch(`${BACKEND_URL}/api/ultimo?dispositivo_id=${SEDE_OPERADOR}`);
     const datosUltimo = await respUltimo.json();
     const notificaciones = [];
@@ -56,7 +55,7 @@ async function cargarNotificaciones() {
       if (!d.router_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '📡 Router cortado por batería baja.' });
       if (!d.internet_activo) notificaciones.push({ tipo: 'advertencia', mensaje: '🌐 Sin conexión a internet.' });
       if (d.voltaje_bateria <= 11.0) notificaciones.push({ tipo: 'advertencia', mensaje: '🔋 Batería baja. Voltaje: ' + d.voltaje_bateria.toFixed(2) + 'V' });
-      if (!d.sd_detectada) notificaciones.push({ tipo: 'advertencia', mensaje: '💾 MicroSD no detectada.' });
+      // CAMBIO: se eliminó la notificación de MicroSD no detectada
     }
 
     const contador = document.getElementById('contadorNotif');
@@ -124,8 +123,9 @@ function actualizarTarjetas(d) {
   document.getElementById('estadoBateria').innerText = bateriaOk ? '✅ En buen estado' : '⚠️ Baja';
   document.getElementById('cardBateria').className = 'card ' + (bateriaOk ? 'ok' : 'alerta');
 
-  document.getElementById('estadoSD').innerText = d.sd_detectada ? '✅ Detectada' : '❌ No detectada';
-  document.getElementById('cardSD').className = 'card ' + (d.sd_detectada ? 'ok' : 'alerta');
+  // CAMBIO: ocultar tarjeta MicroSD
+  const cardSD = document.getElementById('cardSD');
+  if (cardSD) cardSD.style.display = 'none';
 
   const hayAlarma = !d.estado_ac || (d.sensor_1 !== -127 && (d.sensor_1 > -20 || d.sensor_1 < -40));
   document.getElementById('estadoAlarma').innerText = hayAlarma ? '⚠️ Alarma activa' : '✅ Sin alarmas';
@@ -153,7 +153,8 @@ function actualizarBannerEstado(datos) {
   const icono = document.getElementById('bannerIcono');
   const mensaje = document.getElementById('bannerMensaje');
 
-  if (!datos.estado_ac || !datos.router_activo || !datos.internet_activo || (datos.voltaje_bateria <= 11.0) || !datos.sd_detectada) {
+  // CAMBIO: ya no se evalúa sd_detectada
+  if (!datos.estado_ac || !datos.router_activo || !datos.internet_activo || (datos.voltaje_bateria <= 11.0)) {
     banner.className = 'banner-estado advertencia';
     icono.innerText = '⚠️';
     let advertencias = [];
@@ -161,7 +162,7 @@ function actualizarBannerEstado(datos) {
     if (!datos.router_activo) advertencias.push('Router cortado');
     if (!datos.internet_activo) advertencias.push('Sin conexión a internet');
     if (datos.voltaje_bateria <= 11.0) advertencias.push('Batería baja');
-    if (!datos.sd_detectada) advertencias.push('MicroSD no detectada');
+    // CAMBIO: se eliminó 'MicroSD no detectada'
     mensaje.innerText = 'Advertencia: ' + advertencias.join(', ') + '.';
   } else {
     banner.className = 'banner-estado ok';
